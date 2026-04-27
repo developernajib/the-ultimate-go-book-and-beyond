@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Body -->
+  <ellipse cx="100" cy="120" rx="55" ry="65" fill="#67D2E0"/>
+  <!-- Feet -->
+  <ellipse cx="75" cy="185" rx="18" ry="8" fill="#67D2E0"/>
+  <ellipse cx="125" cy="185" rx="18" ry="8" fill="#67D2E0"/>
+  <!-- Arms -->
+  <ellipse cx="42" cy="120" rx="12" ry="28" fill="#67D2E0" transform="rotate(-10 42 120)"/>
+  <ellipse cx="158" cy="120" rx="12" ry="28" fill="#67D2E0" transform="rotate(10 158 120)"/>
+  <!-- Head -->
+  <ellipse cx="100" cy="68" rx="48" ry="45" fill="#67D2E0"/>
+  <!-- Ears -->
+  <ellipse cx="62" cy="28" rx="8" ry="14" fill="#67D2E0"/>
+  <ellipse cx="62" cy="28" rx="4" ry="10" fill="#E0D5B3"/>
+  <ellipse cx="138" cy="28" rx="8" ry="14" fill="#67D2E0"/>
+  <ellipse cx="138" cy="28" rx="4" ry="10" fill="#E0D5B3"/>
+  <!-- Eyes (white part) -->
+  <circle cx="82" cy="60" r="16" fill="white"/>
+  <circle cx="118" cy="60" r="16" fill="white"/>
+  <!-- Pupils -->
+  <circle cx="86" cy="60" r="8" fill="#333"/>
+  <circle cx="122" cy="60" r="8" fill="#333"/>
+  <!-- Eye shine -->
+  <circle cx="89" cy="57" r="3" fill="white"/>
+  <circle cx="125" cy="57" r="3" fill="white"/>
+  <!-- Nose -->
+  <ellipse cx="100" cy="76" rx="5" ry="3.5" fill="#C4A96A"/>
+  <!-- Smile -->
+  <path d="M 88 84 Q 100 94 112 84" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"/>
+  <!-- Teeth -->
+  <rect x="95" y="84" width="10" height="7" rx="1" fill="white"/>
+  <line x1="100" y1="84" x2="100" y2="91" stroke="#ddd" stroke-width="0.5"/>
+  <!-- Belly -->
+  <ellipse cx="100" cy="135" rx="35" ry="40" fill="#C1E8ED"/>
+</svg>

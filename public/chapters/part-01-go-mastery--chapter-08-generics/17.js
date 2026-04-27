@@ -1,0 +1,25 @@
+export default `## Exercises
+
+1. **Implement a Generic Stack Data Structure**: Build a fully generic \`Stack[T any]\` with \`Push\`, \`Pop\`, \`Peek\`, \`Len\`, and \`IsEmpty\` methods. The \`Pop\` and \`Peek\` methods must return \`(T, bool)\` to handle the empty-stack case without panicking. Add a \`ToSlice() []T\` method that returns items in LIFO order without mutating the stack. Write table-driven tests covering \`int\`, \`string\`, and a custom struct type, including edge cases for \`Pop\` and \`Peek\` on empty stacks. Then add a second variant, \`BoundedStack[T any]\`, with a constructor that accepts a capacity and returns an error from \`Push\` when full, demonstrating how to layer constraints on top of a generic base.
+
+2. **Build a Generic Map/Filter/Reduce**: Implement the three higher-order functions as standalone generic functions: \`Map[T, U any]([]T, func(T) U) []U\`, \`Filter[T any]([]T, func(T) bool) []T\`, and \`Reduce[T, A any]([]T, A, func(A, T) A) A\`. Write a pipeline that chains all three, e.g., filter a slice of structs by a field condition, map to a derived type, then reduce to an aggregate value, without any intermediate type assertions. Include benchmarks comparing the generic pipeline against a hand-written equivalent loop to verify there is no measurable overhead from the generic abstraction in the compiled output.
+
+3. **Create a Generic \`Result[T]\` Type**: Design a \`Result[T any]\` type that mirrors Rust's \`Result<T, E>\` with an \`Ok(T)\` constructor and an \`Err(error)\` constructor. Implement \`IsOk() bool\`, \`Unwrap() T\` (panics on error), \`UnwrapOr(T) T\`, \`Map[T, U any](Result[T], func(T) Result[U]) Result[U]\`, and \`FlatMap[T, U any]\`. Use \`Result[T]\` to wrap a multi-step data processing pipeline (parse, validate, transform) where each step can fail, eliminating all explicit \`if err != nil\` checks from the call site. Write tests demonstrating that errors propagate correctly through chained \`FlatMap\` calls and that \`Map\` is never called on an \`Err\` result.
+
+4. **Implement a Generic Ordered Set with Constraints**: Build an \`OrderedSet[T cmp.Ordered]\` backed by a sorted slice that guarantees uniqueness and O(log n) membership testing via \`sort.Search\`. Implement \`Add(T)\`, \`Remove(T) bool\`, \`Contains(T) bool\`, \`Union(*OrderedSet[T]) *OrderedSet[T]\`, \`Intersection(*OrderedSet[T]) *OrderedSet[T]\`, and \`ToSlice() []T\`. Demonstrate that the \`cmp.Ordered\` constraint correctly prevents instantiation with a non-comparable type at compile time by including a commented-out example and explaining the compiler error. Write property-based style tests that verify set invariants (sorted order, no duplicates) hold after arbitrary sequences of \`Add\` and \`Remove\` operations.
+
+5. **Build a Generic LRU Cache**: Implement \`LRUCache[K comparable, V any]\` using a doubly-linked list and a map for O(1) \`Get\` and \`Put\` operations. The constructor must accept a \`capacity int\` and a \`ttl time.Duration\`; entries exceeding their TTL must be treated as cache misses and evicted lazily on access. Add a \`Stats() CacheStats\` method returning hit rate, miss rate, and current size. Make the cache safe for concurrent use with a \`sync.RWMutex\` where reads (\`Get\`) hold only the read lock until a promotion is needed. Write a concurrent benchmark that runs \`Get\` and \`Put\` from multiple goroutines simultaneously and verify with the race detector that no data races occur.
+
+6. **Design a Generic Pipeline with Type Constraints**: Build a composable pipeline system where each stage is represented as \`Stage[In, Out any]\` holding a \`func(In) (Out, error)\`. Implement a \`Then[A, B, C any](Stage[A, B], Stage[B, C]) Stage[A, C]\` function that chains two stages, short-circuiting on error. Add a \`Parallel[T, U any](Stage[T, U], int) Stage[[]T, []U]\` combinator that fans out a slice of inputs across a worker pool, preserving input order in the output. Use the pipeline to build a realistic example: read raw JSON records, validate schema, transform to a domain type, and write to an output sink, each as a separate typed stage. Confirm via the type checker that mis-ordered stages (type mismatch between \`Out\` of one stage and \`In\` of the next) produce a compile-time error, not a runtime panic.
+
+### Senior at FAANG Track
+
+7. **Team generics audit.** Inventory every generic type and function your team owns. For each, decide: keep as-is, simplify, remove. Write the report.
+
+8. **Guide authorship.** Write your team's "when to use generics" guide. Three to five pages. Cover the decision framework, mistakes to avoid, performance considerations, and review patterns.
+
+9. **Pre-generics migration.** Pick one module in your codebase that still uses \`interface{}\` or code generation. Evaluate whether migration to generics is worth the effort. Document the decision.
+
+10. **Performance characterisation.** Take a hot generic function in your codebase. Measure GCShape instantiation count, dictionary overhead, and direct-call overhead. Document. Use the results to set team performance expectations.
+---
+`;

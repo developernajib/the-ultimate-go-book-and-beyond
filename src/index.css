@@ -1,0 +1,237 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure full viewport width on all devices */
+@layer base {
+    html {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        width: 100%;
+        min-width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    #root {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    body > div,
+    main > *,
+    section > *,
+    article > * {
+        max-width: 100%;
+    }
+}
+
+/* Custom code block styling */
+pre[class*='language-'] {
+    @apply my-4 text-sm leading-relaxed;
+    background-color: transparent;
+}
+
+code[class*='language-'] {
+    @apply text-sm;
+}
+
+/* Prism token theming for Go Book */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    @apply text-base-content/60;
+}
+
+.token.punctuation {
+    @apply text-base-content/80;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    @apply text-error;
+}
+
+.token.boolean,
+.token.number {
+    @apply text-warning;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    @apply text-success;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    @apply text-info;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    @apply text-primary;
+}
+
+.token.function,
+.token.class-name {
+    @apply text-accent;
+}
+
+/* Inline code */
+:not(pre) > code {
+    @apply font-mono text-xs px-1.5 py-0.5 rounded-md bg-base-300/60 text-base-content;
+}
+
+/* Chapter prose styling */
+.prose-gobook {
+    @apply text-base leading-7 text-base-content;
+}
+
+.prose-gobook p {
+    @apply mb-5;
+}
+
+.prose-gobook ul,
+.prose-gobook ol {
+    @apply mb-5 ml-6 space-y-1.5;
+}
+
+.prose-gobook li {
+    @apply leading-7;
+}
+
+.prose-gobook ul li {
+    list-style-type: disc;
+}
+
+.prose-gobook ol li {
+    list-style-type: decimal;
+}
+
+.prose-gobook strong {
+    @apply font-semibold text-base-content;
+}
+
+.prose-gobook em {
+    @apply italic text-base-content/90;
+}
+
+.prose-gobook a {
+    @apply text-primary;
+    position: relative;
+    text-decoration: none;
+}
+
+.prose-gobook a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -0.1em;
+    width: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: width 150ms ease-out;
+}
+
+.prose-gobook a:hover::after {
+    width: 100%;
+}
+
+.prose-heading {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-base-content;
+}
+
+.prose-subheading {
+    @apply text-xl sm:text-2xl font-semibold text-base-content;
+}
+
+
+.chapter-table {
+    @apply w-full text-sm;
+}
+
+.chapter-table thead tr {
+    @apply bg-base-100/90;
+}
+
+.chapter-table thead th {
+    @apply font-semibold text-base-content;
+}
+
+.chapter-table tbody tr:nth-child(even) {
+    @apply bg-base-200/40;
+}
+
+.chapter-table tbody tr:hover {
+    @apply bg-base-200/70;
+}
+
+/* Floating animation for logo */
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Hero background orbital motion */
+@keyframes hero-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.hero-orbit-slow {
+    animation: hero-orbit 36s linear infinite;
+    transform-origin: center;
+}
+
+.hero-orbit-slower {
+    animation: hero-orbit 52s linear infinite reverse;
+    transform-origin: center;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .animate-float {
+        animation: none !important;
+    }
+
+    .hero-orbit-slow,
+    .hero-orbit-slower {
+        animation: none !important;
+    }
+}
