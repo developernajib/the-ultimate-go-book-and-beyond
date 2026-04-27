@@ -206,7 +206,10 @@ package circuitbreaker
 
 import (
     "context"
+    "encoding/json"
     "errors"
+    "log"
+    "net/http"
     "sync"
     "time"
 )

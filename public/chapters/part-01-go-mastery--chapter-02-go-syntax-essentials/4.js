@@ -26,6 +26,7 @@ var maxRetries = 3  // Package-level: must use var
 
 func main() {
     attempts := 0   // Function-level: := is fine
+    _ = attempts
 }
 \`\`\`
 

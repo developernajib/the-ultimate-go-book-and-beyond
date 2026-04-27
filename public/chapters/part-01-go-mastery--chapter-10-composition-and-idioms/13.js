@@ -13,6 +13,8 @@ package httpclient
 
 import (
     "net/http"
+    "net/url"
+    "strings"
     "time"
 )
 
@@ -113,8 +115,7 @@ func main() {
     )
 
     req, _ := http.NewRequest("GET", "/users", nil)
-    resp, err := client.Do(req)
-    // ...
+    _, _ = client.Do(req)
 }
 \`\`\`
 
@@ -381,24 +382,24 @@ func main() {
     ctx := context.Background()
 
     // Create
-    err := userRepo.Create(ctx, User{
+    _ = userRepo.Create(ctx, User{
         ID:    "1",
         Name:  "John",
         Email: "john@example.com",
     })
 
     // Get
-    user, err := userRepo.Get(ctx, "1")
+    user, _ := userRepo.Get(ctx, "1")
 
     // List
-    users, err := userRepo.List(ctx, 0, 10)
+    _, _ = userRepo.List(ctx, 0, 10)
 
     // Update
     user.Name = "Jane"
-    err = userRepo.Update(ctx, user)
+    _ = userRepo.Update(ctx, user)
 
     // Delete
-    err = userRepo.Delete(ctx, "1")
+    _ = userRepo.Delete(ctx, "1")
 }
 \`\`\`
 
