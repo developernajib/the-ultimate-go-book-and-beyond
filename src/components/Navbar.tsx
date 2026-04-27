@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 import { useCommandPalette } from './CommandPalette'
@@ -8,22 +7,14 @@ interface NavbarProps {
     chapters?: ChapterWithSections[]
     currentSlug?: string
     currentSection?: string
+    onOpenSidebar?: () => void
 }
 
-export default function Navbar({ chapters = [], currentSlug, currentSection }: NavbarProps) {
-    const [drawerQuery, setDrawerQuery] = useState('')
+export default function Navbar({ chapters = [], currentSlug, currentSection, onOpenSidebar }: NavbarProps) {
     const navigate = useNavigate()
     const { open: openPalette } = useCommandPalette()
 
     const currentChapter = chapters.find((c) => c.slug === currentSlug)
-
-    const filteredDrawer = useMemo(() => {
-        const q = drawerQuery.trim().toLowerCase()
-        if (!q) return chapters
-        return chapters.filter((c) =>
-            `${c.number} ${c.title} ${c.partLabel}`.toLowerCase().includes(q),
-        )
-    }, [chapters, drawerQuery])
 
     const handleRandom = () => {
         if (!chapters.length) return
@@ -36,18 +27,20 @@ export default function Navbar({ chapters = [], currentSlug, currentSection }: N
         <>
             {/* ── Main Navbar ─────────────────────────────────────────────── */}
             <div className="navbar bg-base-100 shadow-lg sticky top-0 z-50 px-2 sm:px-4 w-full">
-                {/* Mobile hamburger */}
-                <div className="flex-none lg:hidden">
-                    <label
-                        htmlFor="nav-drawer"
-                        className="btn btn-ghost btn-sm btn-circle"
-                        aria-label="Open menu"
-                    >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </label>
-                </div>
+                {/* Mobile sidebar trigger */}
+                {onOpenSidebar && (
+                    <div className="flex-none lg:hidden">
+                        <button
+                            onClick={onOpenSidebar}
+                            className="btn btn-ghost btn-sm btn-circle"
+                            aria-label="Open contents"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
 
                 {/* Brand */}
                 <div className="flex-1 min-w-0 flex items-center gap-3">
@@ -127,71 +120,6 @@ export default function Navbar({ chapters = [], currentSlug, currentSection }: N
                 </div>
             </div>
 
-            {/* ── Mobile Drawer ────────────────────────────────────────────── */}
-            <div className="drawer lg:hidden">
-                <input id="nav-drawer" type="checkbox" className="drawer-toggle" />
-                <div className="drawer-side z-40">
-                    <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
-                    <aside className="menu bg-base-100 min-h-full w-[85vw] max-w-sm p-4 overflow-y-auto">
-                        <div className="mb-4 flex justify-between items-center">
-                            <Link to="/" className="text-lg font-bold flex items-center gap-2">
-                                <span className="text-primary font-mono">ʕ◔ϖ◔ʔ</span>
-                                Go Book & Beyond
-                            </Link>
-                            <label htmlFor="nav-drawer" className="btn btn-ghost btn-sm btn-circle">✕</label>
-                        </div>
-
-                        <div className="mb-2 flex items-center justify-between">
-                            <span className="text-xs uppercase tracking-wider text-base-content/70">Chapters</span>
-                            <span className="text-[0.65rem] text-base-content/50">{chapters.filter(c => /^Chapter \d+:/.test(c.title)).length} chapters</span>
-                        </div>
-                        <label className="input input-sm input-bordered flex items-center gap-2 w-full mb-3">
-                            <svg className="h-4 w-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input
-                                type="text"
-                                className="grow bg-transparent text-xs outline-none"
-                                placeholder="Filter chapters…"
-                                value={drawerQuery}
-                                onChange={(e) => setDrawerQuery(e.target.value)}
-                            />
-                        </label>
-
-                        <ul className="space-y-0.5 overflow-y-auto">
-                            {filteredDrawer.map((ch) => {
-                                const isActive = ch.slug === currentSlug
-                                const first = ch.sections[0]
-                                return (
-                                    <li key={ch.slug}>
-                                        <Link
-                                            to={first ? `/chapters/${ch.slug}/${first.slug}` : `/chapters/${ch.slug}`}
-                                            onClick={() => {
-                                                const drawer = document.getElementById('nav-drawer') as HTMLInputElement
-                                                if (drawer) drawer.checked = false
-                                            }}
-                                            className={`flex items-center gap-2 rounded-lg px-2 py-2 text-xs transition-all border ${
-                                                isActive
-                                                    ? 'bg-base-200/80 border-primary/60'
-                                                    : 'border-transparent hover:bg-base-200/60'
-                                            }`}
-                                        >
-                                            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${isActive ? 'bg-primary' : 'bg-base-300'}`} />
-                                            <span className="truncate text-base-content">{ch.title}</span>
-                                            <span className="ml-auto text-[0.6rem] text-base-content/40 shrink-0">
-                                                {ch.sections.length}§
-                                            </span>
-                                        </Link>
-                                    </li>
-                                )
-                            })}
-                            {drawerQuery && filteredDrawer.length === 0 && (
-                                <li className="text-xs text-base-content/60 px-2 py-3">No chapters match.</li>
-                            )}
-                        </ul>
-                    </aside>
-                </div>
-            </div>
         </>
     )
 }

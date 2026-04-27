@@ -22,6 +22,7 @@ export default function ChapterPage() {
     const navigate = useNavigate()
 
     const [chapters, setChapters] = useState<ChapterWithSections[]>([])
+    const [sidebarOpen, setSidebarOpen] = useState(false)
     const [currentChapter, setCurrentChapter] = useState<ChapterWithSections | null>(null)
     const [currentSection, setCurrentSection] = useState<Section | null>(null)
     const [html, setHtml] = useState('')
@@ -32,6 +33,13 @@ export default function ChapterPage() {
     >([])
 
     const prevKey = useRef('')
+
+    // Reset scroll on mount before browser can restore position
+    useEffect(() => {
+        const scroller = document.getElementById('main-scroll')
+        if (scroller) scroller.scrollTop = 0
+        window.scrollTo(0, 0)
+    }, [])
 
     useEffect(() => {
         Promise.all([getAllChapters(), getAllSectionsFlat()]).then(([all, flat]) => {
@@ -143,12 +151,12 @@ export default function ChapterPage() {
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-base-200 w-full">
             <div className="shrink-0 z-30">
-                <Navbar chapters={chapters} currentSlug={slug} currentSection={currentSection?.title} />
+                <Navbar chapters={chapters} currentSlug={slug} currentSection={currentSection?.title} onOpenSidebar={() => setSidebarOpen(true)} />
                 <ReadingProgress scrollContainerId="main-scroll" resetKey={`${slug}/${sectionSlug}`} />
             </div>
 
             <div className="flex flex-1 min-h-0 w-full">
-                <Sidebar chapters={chapters} currentSlug={slug} currentSectionSlug={sectionSlug} />
+                <Sidebar chapters={chapters} currentSlug={slug} currentSectionSlug={sectionSlug} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
 
                 <div className="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="main-scroll" className="flex-1 min-h-0 overflow-y-auto">

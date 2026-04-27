@@ -11,14 +11,16 @@ export default function ContributeCallout({ chapterTitle, sectionTitle }: Contri
         return stored === null ? true : stored === 'open'
     })
 
+    // Auto-close only on first ever visit (no stored value yet)
     useEffect(() => {
-        if (!open) return
+        const stored = localStorage.getItem('contribute-callout')
+        if (stored !== null) return
         const timer = setTimeout(() => {
             setOpen(false)
             localStorage.setItem('contribute-callout', 'closed')
         }, 20000)
         return () => clearTimeout(timer)
-    }, [open])
+    }, [])
 
     const handleClose = () => {
         setOpen(false)
@@ -62,7 +64,7 @@ export default function ContributeCallout({ chapterTitle, sectionTitle }: Contri
 
     return (
         <div className="flex flex-col gap-3 rounded-xl border border-base-300/60 bg-base-100/10 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 min-w-0">
                 <div className="mt-0.5 h-6 w-6 flex-shrink-0 rounded-full bg-base-300/70 flex items-center justify-center">
                     <svg className="h-3.5 w-3.5 text-base-content/80" viewBox="0 0 24 24" fill="none">
                         <path d="M12 6V14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -82,29 +84,27 @@ export default function ContributeCallout({ chapterTitle, sectionTitle }: Contri
                     </p>
                 </div>
             </div>
-            <div className="flex items-stretch gap-2 sm:justify-end">
-                <div className="flex flex-col gap-2">
-                    <a
-                        href={issueUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex w-32 items-center justify-center rounded-lg border border-primary/70 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-                    >
-                        Open issue
-                    </a>
-                    <a
-                        href="https://github.com/developernajib/the-ultimate-go-book-and-beyond"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex w-32 items-center justify-center rounded-lg border border-base-content/20 bg-base-100/10 px-3 py-1.5 text-xs font-medium text-base-content/70 transition-colors hover:border-base-content/40 hover:text-base-content"
-                    >
-                        View repository
-                    </a>
-                </div>
+            <div className="flex items-center gap-2 shrink-0 sm:justify-end">
+                <a
+                    href={issueUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-1 sm:flex-none sm:w-32 items-center justify-center rounded-lg border border-primary/70 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                    Open issue
+                </a>
+                <a
+                    href="https://github.com/developernajib/the-ultimate-go-book-and-beyond"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-1 sm:flex-none sm:w-32 items-center justify-center rounded-lg border border-base-content/20 bg-base-100/10 px-3 py-1.5 text-xs font-medium text-base-content/70 transition-colors hover:border-base-content/40 hover:text-base-content"
+                >
+                    View repository
+                </a>
                 <button
                     onClick={handleClose}
                     title="Dismiss"
-                    className="flex flex-col items-center justify-center gap-1 rounded-lg border border-base-content/20 bg-base-100/10 px-3 text-xs font-medium text-base-content/70 transition-colors hover:border-base-content/40 hover:text-base-content"
+                    className="flex h-[2.125rem] w-8 items-center justify-center rounded-lg border border-base-content/20 bg-base-100/10 text-base-content/70 transition-colors hover:border-base-content/40 hover:text-base-content shrink-0"
                 >
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <path d="M18 6L6 18M6 6l12 12" />

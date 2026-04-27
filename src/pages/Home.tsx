@@ -12,7 +12,7 @@ const BOOK_STATS = [
     { label: 'Chapters', value: '185+' },
     { label: 'Sub-Chapters', value: '79+' },
     { label: 'System Design', value: '39' },
-    { label: 'Capstone Projects', value: '16' },
+    { label: 'Capstone Projects', value: '15' },
 ]
 
 const PART_HIGHLIGHTS = [
@@ -59,17 +59,17 @@ export default function Home() {
             </div>
 
             <main className="relative z-10">
-                <section className="hero min-h-[calc(100vh-4rem)] py-6 sm:py-10">
-                    <div className="hero-content w-full max-w-6xl px-3 sm:px-4 md:px-6 lg:px-8">
-                        <div className="flex w-full flex-col items-center gap-8 sm:gap-10 lg:flex-row lg:items-stretch lg:gap-16">
+                <section className="hero min-h-[calc(100vh-4rem)] py-10 sm:py-14">
+                    <div className="hero-content w-full max-w-6xl px-4 sm:px-6 md:px-8 lg:px-8">
+                        <div className="flex w-full flex-col items-start gap-10 sm:gap-12 lg:flex-row lg:items-stretch lg:gap-16">
 
                             {/* Left column */}
-                            <div className="flex-1 max-w-xl text-center lg:text-left px-2">
-                                <div className="space-y-6 md:space-y-8">
+                            <div className="flex-1 max-w-xl w-full text-left lg:text-left">
+                                <div className="space-y-8 md:space-y-10">
                                     <GoLogo />
 
-                                    <div className="space-y-3">
-                                        <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                                    <div className="space-y-5">
+                                        <div className="flex flex-wrap gap-2 justify-start">
                                             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                                                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                                                 Go 1.26 · Updated April 2026
@@ -103,16 +103,16 @@ export default function Home() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-1">
                                         {BOOK_STATS.map((s) => (
-                                            <div key={s.label} className="rounded-lg border border-base-300/50 bg-base-100/20 px-3 py-2 text-center">
+                                            <div key={s.label} className="rounded-lg border border-base-300/50 bg-base-100/20 px-3 py-3 text-center">
                                                 <div className="text-lg font-bold text-primary">{s.value}</div>
-                                                <div className="text-[0.7rem] text-base-content/60">{s.label}</div>
+                                                <div className="text-[0.7rem] text-base-content/60 mt-0.5">{s.label}</div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="flex flex-wrap gap-3 justify-center lg:justify-start pt-2">
+                                    <div className="flex flex-wrap gap-3 justify-start pt-1">
                                         <Link to={START_HREF} className="btn btn-primary btn-sm sm:btn-md">
                                             Read Free Preview
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -138,7 +138,7 @@ export default function Home() {
                                         )}
                                     </div>
 
-                                    <p className="text-xs text-base-content/50 pt-2 flex flex-wrap items-center gap-1.5">
+                                    <p className="text-xs text-base-content/50 flex flex-wrap items-center gap-1.5">
                                         <span>Written by</span>
                                         <button
                                             onClick={() => {
@@ -149,7 +149,7 @@ export default function Home() {
                                                     setTimeout(() => btn.classList.add('hidden'), 2000)
                                                 }
                                             }}
-                                            className="group badge badge-primary badge-sm font-semibold cursor-pointer px-3 py-2.5 hover:scale-105 hover:shadow-md hover:shadow-primary/30 transition-all duration-200"
+                                            className="group inline-flex items-center rounded-full border border-base-content/20 bg-transparent px-3 py-1 text-xs font-semibold text-base-content/70 cursor-pointer hover:scale-105 hover:border-primary/50 hover:text-primary hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
                                             title="Click to copy email"
                                         >
                                             <span className="group-hover:hidden">Md. Najib Islam</span>

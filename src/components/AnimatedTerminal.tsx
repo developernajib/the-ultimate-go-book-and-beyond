@@ -168,7 +168,6 @@ export default function AnimatedTerminal() {
                         onClick={() => setCursorPos(inputRef.current?.selectionStart ?? input.length)}
                         onSelect={() => setCursorPos(inputRef.current?.selectionStart ?? input.length)}
                         className="opacity-0 absolute pointer-events-none"
-                        autoFocus
                         aria-label="Terminal input"
                     />
                 </div>
