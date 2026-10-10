@@ -1,0 +1,4 @@
+error_count,window_start,service
+2,0001-01-01T00:00:00Z,auth-service
+1,0001-01-01T00:00:00Z,payment-service
+1,0001-01-01T00:00:00Z,order-service

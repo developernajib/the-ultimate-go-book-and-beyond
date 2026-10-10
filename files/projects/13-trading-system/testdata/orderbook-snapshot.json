@@ -1,0 +1,19 @@
+{
+  "symbol": "BTC/USD",
+  "sequence": 1000042,
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "bids": [
+    { "price": "42500.00000000", "quantity": "1.50000000", "orders": 3 },
+    { "price": "42495.00000000", "quantity": "2.20000000", "orders": 5 },
+    { "price": "42490.00000000", "quantity": "0.80000000", "orders": 2 },
+    { "price": "42480.00000000", "quantity": "3.10000000", "orders": 7 },
+    { "price": "42470.00000000", "quantity": "1.00000000", "orders": 1 }
+  ],
+  "asks": [
+    { "price": "42510.00000000", "quantity": "0.90000000", "orders": 2 },
+    { "price": "42515.00000000", "quantity": "1.75000000", "orders": 4 },
+    { "price": "42520.00000000", "quantity": "2.50000000", "orders": 6 },
+    { "price": "42530.00000000", "quantity": "1.20000000", "orders": 3 },
+    { "price": "42540.00000000", "quantity": "0.60000000", "orders": 1 }
+  ]
+}

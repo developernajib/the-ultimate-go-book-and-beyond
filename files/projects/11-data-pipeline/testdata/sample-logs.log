@@ -1,0 +1,15 @@
+2024-01-15 08:01:02 [INFO] [api] Handling request GET /health
+2024-01-15 08:01:05 [ERROR] [auth] Failed to validate token: signature mismatch
+2024-01-15 08:01:07 [INFO] [api] Handling request POST /login
+2024-01-15 08:01:08 [WARN] [db] Slow query detected: 450ms for SELECT * FROM users
+2024-01-15 08:01:10 [ERROR] [api] Unhandled exception: nil pointer dereference
+2024-01-15 08:01:12 [INFO] [worker] Processed batch of 1000 records
+2024-01-15 08:01:14 [ERROR] [db] Connection pool exhausted: max 50 connections
+2024-01-15 08:01:15 [INFO] [api] Handling request GET /users
+2024-01-15 08:01:17 [FATAL] [worker] Out of memory: cannot allocate 2GB
+2024-01-15 08:01:20 [INFO] [api] Handling request DELETE /sessions/abc123
+2024-01-15 08:02:01 [ERROR] [auth] Brute force detected: 100 failed attempts from 192.168.1.1
+2024-01-15 08:02:03 [INFO] [api] Handling request GET /products
+2024-01-15 08:02:05 [WARN] [cache] Cache miss rate above threshold: 65%
+2024-01-15 08:02:07 [ERROR] [payment] Stripe webhook signature verification failed
+2024-01-15 08:02:09 [INFO] [worker] Job completed in 1.2s

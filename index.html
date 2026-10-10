@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="gobook">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#0a1628" />
+        <title>The Ultimate Go Book & Beyond - Your complete path from beginner to senior engineer</title>
+        <meta
+            name="description"
+            content="The most comprehensive Go engineering book ever written - 169 chapters covering everything from your very first line of Go to building production systems at scale."
+        />
+
+        <!-- Security -->
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https:;" />
+
+        <!-- Open Graph -->
+        <meta property="og:title" content="The Ultimate Go Book & Beyond - Your complete path from beginner to senior engineer" />
+        <meta property="og:description" content="The most comprehensive Go engineering book ever written - 169 chapters covering everything from your very first line of Go to building production systems at scale." />
+        <meta property="og:image" content="/og-gobook.png" />
+        <meta property="og:type" content="website" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="The Ultimate Go Book & Beyond - Your complete path from beginner to senior engineer" />
+        <meta name="twitter:description" content="The most comprehensive Go engineering book ever written - 169 chapters covering everything from your very first line of Go to building production systems at scale." />
+        <meta name="twitter:image" content="/og-gobook.png" />
+
+        <!-- Preload index for fast sidebar -->
+        <link rel="preload" href="/chapters/index.json" as="fetch" crossorigin="anonymous" />
+
+        <!-- Structured data -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Book",
+                "name": "The Ultimate Go Book & Beyond",
+                "author": { "@type": "Person", "name": "Md. Najib Islam" },
+                "description": "The most comprehensive Go engineering book ever written - 169 chapters covering everything from your very first line of Go to building production systems at scale.",
+                "inLanguage": "en",
+                "license": "https://creativecommons.org/licenses/by/4.0/"
+            }
+        </script>
+    </head>
+    <body class="w-full min-w-full">
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
+</html>

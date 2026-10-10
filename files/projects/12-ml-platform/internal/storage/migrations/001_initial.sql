@@ -1,0 +1,2 @@
+-- 001_initial.sql
+-- Initial schema placeholder

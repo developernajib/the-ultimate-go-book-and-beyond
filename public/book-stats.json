@@ -1,0 +1,23 @@
+{
+    "generatedAt": "2026-10-10T11:14:03.291Z",
+    "files": 6140,
+    "totalLines": 1217234,
+    "contentLines": "953K+",
+    "proseLines": 199419,
+    "codeLines": "754K+",
+    "totalWords": "7.8M+",
+    "totalCharsRaw": "58.1M+",
+    "totalChars": 46123940,
+    "totalTokens": "12.9M+",
+    "estimatedPages": "28,422",
+    "raw": {
+        "totalLines": 1217234,
+        "contentLines": 953270,
+        "proseLines": 199419,
+        "codeLines": 753851,
+        "totalWords": 7815956,
+        "totalCharsRaw": 58090634,
+        "totalTokens": 12909024,
+        "estimatedPages": 28422
+    }
+}

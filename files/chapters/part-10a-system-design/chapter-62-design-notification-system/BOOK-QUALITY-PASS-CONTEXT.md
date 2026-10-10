@@ -1,0 +1,2 @@
+- ch62 COMPLETE (17 files): Exists-then-Set dedup races x2 (fixed to SetNX claim+release), scheduled-message loss via cumulative Kafka commits (Delayer handoff), SendMulticast->SendEachForMulticast (FCM batch endpoint dead since 2024-06), html/template+text/template same-name import collision, field named 'default' (keyword), rune-safe truncation x2, *messaging.Error phantom type -> predicates, missing strings/net-http imports, exercise numbering.
+RESUME AT: part-10a chapter-63-design-distributed-cache.

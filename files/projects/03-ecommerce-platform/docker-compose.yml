@@ -1,0 +1,129 @@
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-product_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── NATS ────────────────────────────────────────────────────────────────────
+  nats:
+    image: nats:2.10-alpine
+    container_name: ecommerce_nats
+    restart: unless-stopped
+    command: ["-js", "-m", "8222"]   # JetStream enabled + monitoring
+    ports:
+      - "${NATS_PORT:-4222}:4222"    # Client connections
+      - "8222:8222"                   # HTTP monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Elasticsearch ────────────────────────────────────────────────────────────
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: ecommerce_elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qv '\"status\":\"red\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ── Jaeger (distributed tracing - optional) ──────────────────────────────────
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: ecommerce_jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "14268:14268"   # HTTP collector (OTLP traces)
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  # ── Product Service ──────────────────────────────────────────────────────────
+  product-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.product
+    container_name: ecommerce_product_service
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-product_db}
+      GRPC_PORT: "50051"
+      JAEGER_ENDPOINT: http://jaeger:14268/api/traces
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    ports:
+      - "50051:50051"
+    profiles:
+      - services
+
+  # ── API Gateway ──────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: ecommerce_api_gateway
+    restart: unless-stopped
+    depends_on:
+      - product-service
+    environment:
+      HTTP_PORT: "8080"
+      PRODUCT_SERVICE_ADDR: product-service:50051
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    profiles:
+      - services
+
+volumes:
+  postgres_data:
+  redis_data:
+  es_data:

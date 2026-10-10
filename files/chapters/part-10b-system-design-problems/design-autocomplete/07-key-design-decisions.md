@@ -1,0 +1,13 @@
+## Key Design Decisions
+
+Every architectural choice in this system resolves a tension between latency, freshness, and scale. The decisions below represent the trade-offs you should be prepared to defend in an interview.
+
+**Trie with Cached Top-K:** Each trie node stores the top-10 suggestions for that prefix, which reduces a query from O(N) full DFS traversal to O(prefix_length) pointer chasing. The trade-off is increased memory (each node stores 10 suggestions at approximately 30 bytes each) and update cost (inserting a new term requires updating top-K lists along the entire path from root to leaf). Updates are batched every few seconds to reduce lock contention, this means a brand-new trending term might take up to 10 seconds to appear in suggestions, which is acceptable for the use case.
+
+**Tiered Caching:** In-memory trie, Redis prefix cache, and term frequency store form a three-layer hierarchy matched to access frequency. Single-character prefixes like "g" and "h" are cached permanently in memory because they absorb an outsized share of total QPS and their top-K results are highly stable. Prefixes of length 2-3 live in the in-memory trie with a 5-minute refresh cycle. Prefixes of length 4-6 use Redis with a 30-second TTL because they change more frequently as trending topics shift. Prefixes longer than 6 characters are computed on-demand from the term frequency store because they are too numerous to precompute and too specific to benefit from caching.
+
+**Score = Frequency + Recency:** The formula `score = log10(count) + recency_boost` balances popularity with freshness. The logarithmic frequency scale is critical: without it, a term searched 10 million times would dominate over a term searched 1 million times, even though both are clearly popular. With log scaling, 10M scores 7.0 and 1M scores 6.0, a meaningful but not overwhelming difference. The recency boost (exponential decay over 7 days) ensures that a term trending right now can overtake a historically popular but stale term. Personalization reserves the first half of the result slots for the user's own prefix-matching history, placing those terms above global results.
+
+**Horizontal Scaling:** Prefix sharding divides the trie by the first character of the prefix. Prefix "a*" routes to server A, "b*" to server B, and so on. This approach is simple, deterministic (no coordination needed), and keeps related prefixes together for cache locality. The downside is uneven distribution, prefixes starting with "s" are far more common than those starting with "x", but in practice, the skew is manageable because each shard serves only its prefix range from memory. Redis Cluster handles the distributed cache layer independently.
+
+---

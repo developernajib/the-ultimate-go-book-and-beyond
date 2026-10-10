@@ -1,0 +1,25 @@
+## Summary
+
+Effective benchmarking and load testing in Go rests on a few core practices:
+
+- **Micro-benchmarks**: Use `testing.B` with `for b.Loop()` (Go 1.24+, keeps call arguments and results alive so calls are not eliminated), `b.ReportAllocs()`, inputs that vary per iteration, and 10+ samples. Know the limit: `b.Loop()` protects calls, not bare expressions, and it will not stop a loop-invariant expression from being hoisted out. Interpret `ns/op`, `B/op`, and `allocs/op` together. Any result under ~1 ns/op is a bug in the benchmark.
+- **Statistical comparison**: Use `benchstat` (Mann-Whitney U-test) with p < 0.01 and at least `-count=10`. Read `± %` before the delta: it is the half-width of the median's confidence interval, and above ~5% nothing else on the line is worth reading. Ignore deltas smaller than ~3x it. Statistical significance is not the same as a meaningful change, and on a loaded machine identical code can report `+117% (p=0.004)`.
+- **Trust allocations over the clock**: `allocs/op` and `B/op` are deterministic and survive a noisy, shared, frequency-scaling box. `ns/op` does not. When you cannot get a quiet machine, and often you cannot, anchor the claim to allocations and treat wall-clock as a hypothesis.
+- **Avoiding pitfalls**: Constant-input elimination, loop-invariant hoisting, setup bleeding into the measured section, GC noise, cold-cache timing, values that escape analysis keeps on the stack (so the "allocating" arm allocates nothing), and unrealistic key distributions. Skew matters in degree, not just in kind: fit the Zipf exponent to production rather than assuming it means 80/20.
+- **Load testing in 2026**: k6 for scenario-heavy CI gates, vegeta for Go-native one-shot API attacks, wrk2 for high-9s tail latency, fortio for gRPC and HTTP/2. All four are open-model. Avoid closed-model `wrk`/`hey`/`bombardier` for latency work.
+- **Coordinated omission**: Gil Tene's open-model correction: schedule each request at its intended start time regardless of prior response latency. HDR Histogram's `recordValueWithExpectedInterval` does this retroactively.
+- **CI integration**: Dedicated self-hosted runners, fixed GOMAXPROCS, disabled turbo boost, `benchstat`-based gates at p < 0.01, results in a time-series store for trend dashboards.
+- **Profiling during load**: `net/http/pprof` for on-demand CPU/heap, Pyroscope/Parca for always-on continuous profiling, and the Go 1.25 flight recorder (`runtime/trace.FlightRecorder`) for post-mortem scheduler traces of rare latency spikes.
+
+The most valuable benchmark represents actual production traffic, not a synthetic worst-case or best-case scenario. Build your benchmarks from production traces when possible, and treat any benchmark result from a shared CI runner with skepticism until validated on dedicated hardware.
+
+One last thing, and it is the thing this chapter would most like you to keep. Every number in a performance claim, including the ones in this book, belongs to a machine, a toolchain, and a workload. A ratio quoted without those three is decoration. The reflex worth building is not "what was the number" but "what would I have to run to find out", because the engineer who re-measures beats the engineer who remembers, every time, and the gap only widens as the hardware and the compiler move underneath you.
+
+### For the junior engineer on the FAANG track
+
+Leave this chapter with four habits. First, never report a performance number without `benchstat` output from ten runs. Second, always report `ns/op`, `B/op`, and `allocs/op` together, never cherry-pick. Third, use open-model load generators for any latency claim. `wrk2`, `vegeta`, `k6`, `fortio`. Fourth, treat the benchmark as part of the code, commit it, review it, maintain it. These four habits mark the difference between an engineer who has read about performance and one who practices it. In FAANG interviews, candidates who live these habits walk through "tell me about a time you measured performance" with concrete numbers and validation steps. Candidates who do not give marketing-shaped answers that fail under follow-up questioning.
+
+### For the senior engineer at FAANG
+
+Leave this chapter with three artifacts per team. First, a benchmark governance policy: what gets benchmarked, what thresholds block deploy, who reviews regressions. Second, a load-test scenario suite (baseline, peak, spike, soak, degradation) wired to CI for the first two and to a nightly job for the rest. Third, a written load-test fidelity validation that confirms the test traffic shape matches production within measurable tolerances. The techniques in this chapter are ingredients. The artifacts are what convert individual engineer skill into team capability that survives attrition. Performance engineering at the staff and principal level is measured by the durability of the team and the services you leave behind after you move on. Write the documents. Mentor the juniors. Kill the benchmarks that do not pull their weight. The tooling will keep evolving. The habits and artifacts outlive any specific tool.
+

@@ -1,0 +1,421 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+	name: 'gobook';
+	default: true;
+	color-scheme: dark;
+	--color-primary: oklch(62% 0.15 200);
+	--color-primary-content: oklch(98% 0.01 200);
+	--color-secondary: oklch(70% 0.12 195);
+	--color-secondary-content: oklch(15% 0.02 195);
+	--color-accent: oklch(65% 0.14 180);
+	--color-accent-content: oklch(98% 0.01 180);
+	--color-neutral: oklch(25% 0.015 240);
+	--color-neutral-content: oklch(85% 0.005 240);
+	--color-base-100: oklch(18% 0.01 240);
+	--color-base-200: oklch(15% 0.01 240);
+	--color-base-300: oklch(12% 0.01 240);
+	--color-base-content: oklch(90% 0.01 240);
+	--color-info: oklch(62% 0.15 230);
+	--color-info-content: oklch(98% 0.02 230);
+	--color-success: oklch(65% 0.15 145);
+	--color-success-content: oklch(15% 0.02 145);
+	--color-warning: oklch(75% 0.15 70);
+	--color-warning-content: oklch(15% 0.02 70);
+	--color-error: oklch(55% 0.18 25);
+	--color-error-content: oklch(95% 0.02 25);
+	--radius-box: 0.5rem;
+	--radius-field: 0.375rem;
+	--radius-selector: 0.25rem;
+}
+
+@plugin "daisyui/theme" {
+	name: 'gobooklight';
+	color-scheme: light;
+	--color-primary: oklch(55% 0.18 200);
+	--color-primary-content: oklch(98% 0.01 200);
+	--color-secondary: oklch(60% 0.14 195);
+	--color-secondary-content: oklch(98% 0.01 195);
+	--color-accent: oklch(55% 0.16 180);
+	--color-accent-content: oklch(98% 0.01 180);
+	--color-neutral: oklch(30% 0.02 240);
+	--color-neutral-content: oklch(95% 0.005 240);
+	--color-base-100: oklch(99% 0.005 240);
+	--color-base-200: oklch(96% 0.008 240);
+	--color-base-300: oklch(93% 0.01 240);
+	--color-base-content: oklch(20% 0.02 240);
+	--color-info: oklch(55% 0.15 230);
+	--color-info-content: oklch(98% 0.02 230);
+	--color-success: oklch(55% 0.15 145);
+	--color-success-content: oklch(98% 0.02 145);
+	--color-warning: oklch(65% 0.15 70);
+	--color-warning-content: oklch(15% 0.02 70);
+	--color-error: oklch(50% 0.18 25);
+	--color-error-content: oklch(98% 0.02 25);
+	--radius-box: 0.5rem;
+	--radius-field: 0.375rem;
+	--radius-selector: 0.25rem;
+}
+
+/* Diagram font: DejaVu Sans Mono (Bitstream Vera license, see the notice
+   embedded in public/fonts/*.ttf). It covers box-drawing, block, geometric
+   and arrow glyphs at fixed 1-cell advances, so ASCII diagrams align
+   identically on every OS. Without it, missing glyphs fall back to
+   proportional symbol fonts and diagram columns drift. */
+@font-face {
+	font-family: 'GoBook Mono';
+	src: url('/fonts/DejaVuSansMono.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'GoBook Mono';
+	src: url('/fonts/DejaVuSansMono-Bold.ttf') format('truetype');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+pre,
+code,
+kbd,
+samp,
+.font-mono {
+	font-family:
+		'GoBook Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+}
+
+/* Full-width guardrails. No overflow clipping on html, body, or page roots:
+   any non-visible overflow on an ancestor disables position sticky. Wide
+   content (code, tables, diagrams) clips inside its own scroll containers. */
+@layer base {
+	html {
+		width: 100%;
+	}
+
+	body {
+		width: 100%;
+		min-width: 100%;
+		position: relative;
+	}
+
+	#root {
+		width: 100%;
+		min-width: 100%;
+	}
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	body > div,
+	main > *,
+	section > *,
+	article > * {
+		max-width: 100%;
+	}
+}
+
+/* Custom code block styling */
+pre[class*='language-'] {
+	@apply my-4 text-sm leading-relaxed;
+	background-color: transparent;
+}
+
+code[class*='language-'] {
+	@apply text-sm;
+}
+
+/* Prism token theming for Go Book */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	@apply text-base-content/60;
+}
+
+.token.punctuation {
+	@apply text-base-content/80;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	@apply text-error;
+}
+
+.token.boolean,
+.token.number {
+	@apply text-warning;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	@apply text-success;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	@apply text-info;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	@apply text-primary;
+}
+
+.token.function,
+.token.class-name {
+	@apply text-accent;
+}
+
+/* Inline code */
+:not(pre) > code {
+	@apply font-mono text-[0.7rem] px-1.5 py-0.5 rounded-md bg-base-content/[0.1] border border-base-content/25 text-base-content font-medium;
+}
+
+/* Chapter prose styling */
+.prose-gobook {
+	@apply text-base leading-7 text-base-content;
+}
+
+.prose-gobook p {
+	@apply mb-5;
+}
+
+.prose-gobook ul,
+.prose-gobook ol {
+	@apply mb-5 ml-6 space-y-1.5;
+}
+
+.prose-gobook li {
+	@apply leading-7;
+}
+
+.prose-gobook ul li {
+	list-style-type: disc;
+}
+
+.prose-gobook ol li {
+	list-style-type: decimal;
+}
+
+.prose-gobook strong {
+	@apply font-semibold text-base-content;
+}
+
+.prose-gobook em {
+	@apply italic text-base-content/90;
+}
+
+.prose-gobook a {
+	@apply text-primary;
+	position: relative;
+	text-decoration: none;
+}
+
+.prose-gobook a::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -0.1em;
+	width: 0;
+	height: 1px;
+	background-color: currentColor;
+	transition: width 150ms ease-out;
+}
+
+.prose-gobook a:hover::after {
+	width: 100%;
+}
+
+.prose-heading {
+	@apply text-2xl sm:text-3xl font-bold tracking-tight text-base-content;
+}
+
+.prose-subheading {
+	@apply text-xl sm:text-2xl font-semibold text-base-content;
+}
+
+.chapter-table {
+	@apply w-full text-sm;
+}
+
+.chapter-table thead tr {
+	@apply bg-base-100/90;
+}
+
+.chapter-table thead th {
+	@apply font-semibold text-base-content;
+}
+
+.chapter-table tbody tr:nth-child(even) {
+	@apply bg-base-200/40;
+}
+
+.chapter-table tbody tr:hover {
+	@apply bg-base-200/70;
+}
+
+/* Floating animation for logo */
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0px);
+	}
+
+	50% {
+		transform: translateY(-20px);
+	}
+}
+
+.animate-float {
+	animation: float 3s ease-in-out infinite;
+}
+
+/* Hero background orbital motion */
+@keyframes hero-orbit {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.hero-orbit-slow {
+	animation: hero-orbit 36s linear infinite;
+	transform-origin: center;
+}
+
+.hero-orbit-slower {
+	animation: hero-orbit 52s linear infinite reverse;
+	transform-origin: center;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	.animate-float {
+		animation: none !important;
+	}
+
+	.hero-orbit-slow,
+	.hero-orbit-slower {
+		animation: none !important;
+	}
+}
+
+/* Slimmer header than the daisyUI default, with v4-style ghost hover.
+   v5 mixes .btn:hover toward black which reads as a black pill on dark
+   themes, so restore the old translucent hover explicitly. */
+.navbar {
+	min-height: 3.25rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+}
+
+.btn-ghost:hover {
+	background-color: color-mix(in oklab, var(--color-base-content) 20%, transparent);
+	border-color: transparent;
+}
+
+/* v5 emboldens button text with a faint shadow; undo it on the gopher
+   marks so they render like v4. */
+.brand-gopher,
+.brand-gopher * {
+	text-shadow: none;
+}
+
+/* Form control focus: primary border, no outer ring or shadow. */
+.input:focus,
+.input:focus-within {
+	--input-color: var(--color-primary);
+	outline: none;
+	box-shadow: none;
+	border-color: var(--color-primary);
+}
+
+.select:focus,
+.textarea:focus {
+	outline-color: var(--color-primary);
+}
+
+/* Custom cursors (pointer devices only, same set as devnajib-portfolio).
+   External SVG files: parsed once and cached by the browser.
+   Touch devices (hover: none) keep the default OS cursor, no overhead. */
+@media (hover: hover) {
+	body {
+		cursor:
+			url('./assets/cursors/arrow.svg') 4 2,
+			auto;
+	}
+
+	button,
+	a,
+	select,
+	[role='button'],
+	label {
+		cursor:
+			url('./assets/cursors/pointer.svg') 10 2,
+			pointer;
+	}
+
+	/* Selectable, non-clickable text shows an I-beam so users know they can select it */
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	li,
+	td,
+	th,
+	blockquote,
+	figcaption,
+	pre,
+	code,
+	input:not([type='checkbox']):not([type='radio']),
+	textarea,
+	.ibeam {
+		cursor:
+			url('./assets/cursors/text.svg') 10 10,
+			text;
+	}
+
+	/* Explicit helpers for elements the semantic rules above do not cover */
+	.cursor-arrow {
+		cursor:
+			url('./assets/cursors/arrow.svg') 4 2,
+			auto;
+	}
+
+	.cursor-hand {
+		cursor:
+			url('./assets/cursors/pointer.svg') 10 2,
+			pointer;
+	}
+
+	.cursor-ibeam {
+		cursor:
+			url('./assets/cursors/text.svg') 10 10,
+			text;
+	}
+}

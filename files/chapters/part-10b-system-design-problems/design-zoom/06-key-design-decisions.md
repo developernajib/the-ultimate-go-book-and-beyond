@@ -1,0 +1,13 @@
+## Key Design Decisions
+
+Each decision below represents a fundamental trade-off in the system. Understanding why each choice was made, and what was sacrificed, is what separates a surface-level design from a production-quality one.
+
+**SFU vs MCU:** Zoom uses SFU (Selective Forwarding Unit): each participant sends one stream. SFU forwards selectively to others. No transcoding = low latency (< 150ms). MCU (centralized mixing) would require transcoding but reduce client bandwidth for large meetings. The trade-off is clear: SFU pushes CPU work to clients (each client decodes N streams) but keeps server-side latency minimal. MCU centralizes the CPU cost but adds 200ms+ of transcoding delay. For meetings under 50 participants, SFU wins on latency. For webinars with 1000+ view-only attendees, a hybrid approach (panelists on SFU, attendees receive a single mixed stream) gives the best of both worlds.
+
+**Simulcast:** Publishers send 3 quality layers (720p, 360p, 180p). SFU selects which layer to forward per subscriber based on their bandwidth. Allows graceful degradation without re-encoding. The alternative, SVC (Scalable Video Coding), embeds all quality layers in a single stream, but SVC has limited codec support and higher encoding complexity. Simulcast wastes some upstream bandwidth (the publisher sends 3 streams instead of 1), but it works with the codecs every WebRTC client already has, including H.264, which has no practical SVC path, and it gives the SFU fine-grained control over per-subscriber quality selection.
+
+**Edge PoP Architecture:** Participants connect to nearest PoP (< 10ms). PoPs interconnect via low-latency backbone. Media servers in PoPs forward streams locally, never mixing them, since mixing is the MCU behaviour this design just rejected. For cross-region meetings, media streams transit the backbone. This is more expensive than running all media servers in a single data center, but it cuts glass-to-glass latency by 50-100ms for most participants. The backbone between PoPs uses dedicated fiber with predictable latency, unlike the public internet where routing can add unpredictable hops.
+
+**Host Migration:** When host disconnects, co-host (if set) or longest-connected participant becomes new host. Meeting continues without interruption. Host's unmute/lock privileges transfer automatically. This is a deliberate availability choice: the meeting is more important than any single participant, including the organizer. The migration uses the signaling channel to broadcast a `host_change` message, and all participants update their local state without any media interruption.
+
+---

@@ -1,0 +1,72 @@
+server:
+  http_addr: ":8080"
+  grpc_addr: ":9090"
+  metrics_addr: ":9100"
+  tls_enabled: false
+  graceful_timeout: 30s
+
+ingestion:
+  workers: 10
+  buffer_size: 10000
+  flush_interval: 10s
+  max_batch_size: 1000
+  otlp:
+    enabled: true
+    grpc_addr: ":4317"
+    http_addr: ":4318"
+  prometheus:
+    enabled: false
+    scrape_interval: 15s
+    scrape_timeout: 10s
+  statsd:
+    enabled: false
+    udp_addr: ":8125"
+    tcp_addr: ":8125"
+  logs:
+    enabled: false
+    syslog_addr: ":514"
+    parse_json: true
+
+storage:
+  metrics:
+    type: "prometheus"
+    path: "./data/metrics"
+    retention_time: 360h
+  logs:
+    type: "clickhouse"
+    dsn: "clickhouse://localhost:9000?database=observability"
+    database: "observability"
+    table: "logs"
+    replicas: 1
+    shards: 1
+  traces:
+    type: "clickhouse"
+    dsn: "clickhouse://localhost:9000?database=observability"
+    database: "observability"
+    spans_table: "spans"
+    index_table: "span_index"
+
+query:
+  max_concurrent_queries: 20
+  query_timeout: 2m
+  max_samples: 50000000
+  cache_enabled: true
+  cache_ttl: 5m
+
+alerting:
+  enabled: false
+  evaluation_interval: 1m
+
+dashboard:
+  enabled: false
+
+auth:
+  enabled: false
+
+retention:
+  metrics:
+    raw_data: 360h
+  logs:
+    raw_data: 360h
+  traces:
+    raw_data: 360h

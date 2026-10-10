@@ -1,0 +1,59 @@
+version: "3.9"
+
+# This compose file is provided for local development convenience.
+# The operator itself runs against a Kubernetes cluster (minikube or kind).
+# Use this file to spin up a local registry and development tools.
+
+services:
+  # Local Docker registry - push images here for kind to pull
+  registry:
+    image: registry:2
+    container_name: postgres-operator-registry
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    volumes:
+      - operator_registry_data:/var/lib/registry
+
+  # kind cluster helper - configure kind to use the local registry
+  # Run `make docker-build IMG=localhost:5001/postgres-operator:dev`
+  # then `make docker-push IMG=localhost:5001/postgres-operator:dev`
+  # and update the manager deployment image accordingly.
+
+  # MinIO - used by the operator's backup feature (S3-compatible target)
+  minio:
+    image: minio/minio:latest
+    container_name: postgres-operator-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - operator_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio-setup:
+    image: minio/mc:latest
+    container_name: postgres-operator-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 minioadmin minioadmin;
+        mc mb --ignore-existing local/pg-backups;
+        exit 0;
+      "
+    restart: "no"
+
+volumes:
+  operator_registry_data:
+  operator_minio_data:

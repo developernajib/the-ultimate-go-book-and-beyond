@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "fields": {
+      "title": "Introduction to Go Programming",
+      "body": "Go is a statically typed compiled language designed at Google. It provides excellent performance, simplicity, and strong concurrency primitives.",
+      "tags": "golang programming language google"
+    }
+  },
+  {
+    "id": 2,
+    "fields": {
+      "title": "Concurrency in Go",
+      "body": "Goroutines and channels are the foundation of Go concurrency. The select statement allows waiting on multiple channel operations.",
+      "tags": "golang concurrency goroutines channels"
+    }
+  },
+  {
+    "id": 3,
+    "fields": {
+      "title": "Distributed Systems Patterns",
+      "body": "Patterns like saga, outbox, and CQRS help build reliable distributed systems. Event sourcing enables full audit trails.",
+      "tags": "distributed systems microservices architecture"
+    }
+  },
+  {
+    "id": 4,
+    "fields": {
+      "title": "Search Engine Internals",
+      "body": "Inverted indexes map terms to documents. BM25 is a ranking function used by Elasticsearch and Solr to score relevance.",
+      "tags": "search information-retrieval bm25 elasticsearch"
+    }
+  },
+  {
+    "id": 5,
+    "fields": {
+      "title": "Database Query Optimization",
+      "body": "Index selection, query planning, and statistics maintenance are key to fast SQL queries. Use EXPLAIN ANALYZE to diagnose slow queries.",
+      "tags": "database sql postgresql optimization"
+    }
+  },
+  {
+    "id": 6,
+    "fields": {
+      "title": "Kubernetes for Go Services",
+      "body": "Deploying Go applications on Kubernetes requires a Dockerfile, Deployment, Service, and optionally a HorizontalPodAutoscaler.",
+      "tags": "kubernetes docker devops deployment"
+    }
+  },
+  {
+    "id": 7,
+    "fields": {
+      "title": "gRPC and Protocol Buffers",
+      "body": "gRPC uses Protocol Buffers for efficient binary serialization. It supports streaming RPCs and is widely used in microservice communication.",
+      "tags": "grpc protobuf microservices rpc"
+    }
+  },
+  {
+    "id": 8,
+    "fields": {
+      "title": "Machine Learning with Go",
+      "body": "Go can call Python ML models via gRPC or HTTP. Libraries like Gorgonia provide native tensor operations for building neural networks.",
+      "tags": "machine-learning golang gorgonia neural-networks"
+    }
+  },
+  {
+    "id": 9,
+    "fields": {
+      "title": "Observability: Metrics, Logs, Traces",
+      "body": "Prometheus collects metrics, Jaeger provides distributed tracing, and structured logging with zerolog gives full observability.",
+      "tags": "observability prometheus jaeger logging tracing"
+    }
+  },
+  {
+    "id": 10,
+    "fields": {
+      "title": "WebAssembly with Go",
+      "body": "Go can compile to WebAssembly, allowing Go code to run in browsers. TinyGo produces smaller Wasm binaries suitable for embedded use.",
+      "tags": "webassembly wasm tinygo browser"
+    }
+  }
+]

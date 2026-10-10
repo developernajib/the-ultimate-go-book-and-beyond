@@ -1,0 +1,21 @@
+## Common Mistakes and How to Avoid Them
+
+These are the mistakes that interviewers see most often when candidates design a payment system. Each one represents a real-world production incident waiting to happen. Understanding why these are wrong is just as important as knowing the correct approach, because an interviewer will often probe your design by asking "what happens if..." to see whether you have considered these failure modes.
+
+1. **No idempotency.** Without idempotency keys, a network timeout followed by a merchant retry results in the customer being charged twice. This is the single most common mistake in payment system design. Require every mutating request to carry a unique key, cache the result in Redis, and replay the cached result on duplicates. The follow-up mistake, and the one that separates candidates, is stopping there and calling the Redis cache the guarantee. A cache evicts and a lock's TTL expires, and either one turns a retry back into a fresh charge. The guarantee has to be a `UNIQUE` constraint in the database that a duplicate cannot get past no matter what Redis did. Redis makes the common case fast, the constraint makes the rare case correct.
+
+2. **Floating-point currency.** IEEE 754 floating-point cannot represent many decimal values exactly. `0.1 + 0.2` equals `0.30000000000000004` in floating-point, not `0.3`. At millions of transactions, these rounding errors accumulate into real money. The fix is to use integer smallest currency units: $10.99 is stored as `1099` cents, and all arithmetic is integer arithmetic.
+
+3. **Single-entry accounting.** Without a double-entry ledger, you have no way to verify that your records are internally consistent. A single-entry system tracks only the merchant's balance, if a bug causes a balance update to be skipped, you cannot detect the error. Double-entry ensures that every payment creates a matching pair of entries that must sum to zero. Any nonzero sum means data corruption.
+
+4. **Storing raw card numbers.** Storing the PAN outside a compliant vault, and storing the CVV after authorization at all, are PCI DSS violations. The card brands levy non-compliance fines reported in the range of roughly $5,000 to $100,000 per month, assessed against your acquiring bank, which passes them on to you, and the real penalty is the acquirer withdrawing your ability to process cards. Use processor tokenization: card data flows from the customer's browser directly to Stripe or Adyen via their client-side SDK, and your servers only ever see a token like `pm_xxx`. The point is not merely to avoid fines but to leave yourself nothing worth stealing, since card data you never receive cannot leak in your breach.
+
+5. **Synchronous webhooks.** Blocking the payment response on webhook delivery adds latency from an unreliable third-party system (the merchant's webhook endpoint). If the merchant's server is slow or down, the payment would time out. Webhooks must be delivered asynchronously via a background job with exponential backoff and a dead-letter queue.
+
+6. **No reconciliation.** Without daily reconciliation between your ledger and the processor's settlement statements, discrepancies accumulate silently. A charge that succeeded at the processor but failed to record in your database (the crash-between-steps scenario) will never be caught without reconciliation. Run this job nightly, and alert immediately on any mismatch.
+
+7. **Ignoring partial failures.** The most dangerous failure mode is when the charge succeeds at the processor but the database write fails. Without a reconciliation job that queries the processor for the status of all "pending" transactions, these orphaned charges are lost, the customer is charged, but the merchant never receives the funds because the system has no record of the payment.
+
+8. **Treating a processor timeout as a failure.** A timeout means the outcome is unknown: the charge may have succeeded. Blindly retrying without the same idempotency key, or without first querying the processor for the status of the original attempt, is how customers get double-charged. Correct timeout handling is persist the attempt, query the processor's status, and only then decide whether to retry.
+
+---

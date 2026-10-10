@@ -1,0 +1,4 @@
+{"user_id":"u1","event_type":"click","timestamp":"2026-09-15T10:00:00Z","value":10.5}
+{"user_id":"u2","event_type":"view","timestamp":"2026-09-15T10:00:10Z","value":5.0}
+{"user_id":"u1","event_type":"purchase","timestamp":"2026-09-15T10:00:20Z","value":99.0}
+{"user_id":"u3","event_type":"click","timestamp":"2026-09-15T10:00:30Z","value":1.0}

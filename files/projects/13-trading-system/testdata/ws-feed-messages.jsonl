@@ -1,0 +1,9 @@
+{"type":"subscribe","product_ids":["BTC/USD","ETH/USD"],"channels":["level2","ticker","matches"]}
+{"type":"subscriptions","channels":[{"name":"level2","product_ids":["BTC/USD","ETH/USD"]},{"name":"ticker","product_ids":["BTC/USD","ETH/USD"]},{"name":"matches","product_ids":["BTC/USD","ETH/USD"]}]}
+{"type":"snapshot","product_id":"BTC/USD","bids":[["42500.00","1.5"],["42495.00","2.2"],["42490.00","0.8"]],"asks":[["42510.00","0.9"],["42515.00","1.75"],["42520.00","2.5"]]}
+{"type":"l2update","product_id":"BTC/USD","time":"2024-01-15T10:30:01.000Z","changes":[["buy","42502.00","0.50"],["sell","42510.00","0.00"]]}
+{"type":"ticker","product_id":"BTC/USD","time":"2024-01-15T10:30:01.500Z","price":"42502.00","open_24h":"41800.00","volume_24h":"1234.56","low_24h":"41500.00","high_24h":"43000.00","best_bid":"42500.00","best_ask":"42510.00"}
+{"type":"match","trade_id":98765,"product_id":"BTC/USD","time":"2024-01-15T10:30:02.000Z","size":"0.10000000","price":"42505.00","side":"sell","maker_order_id":"ord-aaa111","taker_order_id":"ord-bbb222"}
+{"type":"l2update","product_id":"BTC/USD","time":"2024-01-15T10:30:02.200Z","changes":[["buy","42505.00","1.20"],["sell","42515.00","0.75"]]}
+{"type":"match","trade_id":98766,"product_id":"ETH/USD","time":"2024-01-15T10:30:03.000Z","size":"5.00000000","price":"2250.50","side":"buy","maker_order_id":"ord-ccc333","taker_order_id":"ord-ddd444"}
+{"type":"ticker","product_id":"ETH/USD","time":"2024-01-15T10:30:03.500Z","price":"2250.50","open_24h":"2200.00","volume_24h":"45678.90","low_24h":"2180.00","high_24h":"2300.00","best_bid":"2249.00","best_ask":"2251.00"}

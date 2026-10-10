@@ -1,0 +1,49 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+  shutdown_timeout: 30s
+
+admin:
+  enabled: true
+  host: "127.0.0.1"
+  port: 9090
+  api_key: "admin-secret-key"
+
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+  access_log: true
+
+metrics:
+  enabled: true
+  path: "/metrics"
+  namespace: "gatewaygo"
+
+routes:
+  - id: "echo-service"
+    paths:
+      - "/api/v1/echo"
+    methods:
+      - "GET"
+      - "POST"
+    upstream_id: "echo-upstream"
+    enabled: true
+    strip_prefix: false
+    plugins:
+      - name: "requestid"
+        enabled: true
+
+upstreams:
+  - id: "echo-upstream"
+    load_balancer: "round_robin"
+    retries: 3
+    retry_timeout: 1s
+    targets:
+      - id: "echo-1"
+        host: "127.0.0.1"
+        port: 8081
+        weight: 100

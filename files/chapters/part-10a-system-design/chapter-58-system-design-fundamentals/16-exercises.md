@@ -1,0 +1,37 @@
+## Exercises
+
+1. **Capacity Estimation for a URL Shortener**: Estimate QPS, storage, and bandwidth for a URL shortener serving 100M DAU with an average of 1 read and 0.1 write per user per day. Calculate storage requirements for 5 years with a 500-byte average record size, then determine how many application servers are needed assuming each handles 10,000 RPS at 70% utilization.
+
+2. **CAP Theorem Trade-off Analysis**: For each of the following systems - a banking ledger, a social media feed, a shopping cart, and a DNS resolver - explicitly choose two of the three CAP properties, justify your choice, and describe how your system behaves during a network partition. Document the concrete user-facing impact of your trade-off for each system.
+
+3. **Consistent Hashing with Virtual Nodes**: Implement a consistent hash ring in Go that supports adding and removing nodes with virtual node replication (150 virtual nodes per physical node). Measure key redistribution percentage when adding a 5th node to a 4-node cluster and compare it against a naive modulo-based approach. Expected outcome: consistent hashing redistributes ~20% of keys vs ~80% for naive modulo.
+
+4. **Back-of-Envelope Math for Twitter-Scale Reads**: Twitter has 300M MAU with 100M DAU. Each user checks their timeline 10 times per day, and each timeline fetch returns 20 tweets. Calculate peak read RPS (assume 3× average), the storage required for one year of tweets at 280 bytes each (assume 500M tweets/day), and the bandwidth needed to serve media attachments if 10% of tweets have a 1MB image.
+
+5. **SQL vs NoSQL Decision Framework**: For each scenario - (a) e-commerce order management with complex joins, (b) user session storage with 50M concurrent sessions, (c) IoT sensor readings at 1M writes/second, (d) a social graph with friend-of-friend queries - choose the appropriate database type (relational, document, key-value, column-family, or graph), justify the choice with specific technical reasons, and identify the primary trade-off you are accepting.
+
+6. **Rate Limiter from First Principles**: Design and implement a token bucket rate limiter in Go that supports per-user limits (100 req/min), per-IP limits (500 req/min), and a global limit (1M req/min). The implementation must be thread-safe, handle Redis as a distributed backend for multi-instance deployments, and include a sliding window fallback for when Redis is unavailable. Write unit tests covering burst behavior, refill logic, and the Redis failure fallback path.
+
+7. **Trade-off Articulation Practice**: For each exercise above, write a short paragraph (3-5 sentences) explaining why you chose your approach over the alternatives. Name the specific cost of your decision, increased latency, operational complexity, weaker consistency, or higher storage, and explain why that cost is acceptable for the given use case. This mirrors what interviewers evaluate most heavily: the ability to reason about trade-offs rather than simply stating a solution.
+
+### Junior → FAANG: How to Approach These Exercises
+
+These exercises are structured to mirror the format of FAANG system design interviews. Work through each one as if you were in an interview: speak your reasoning out loud, start with requirements and capacity math before touching architecture, and explicitly state your trade-off decisions.
+
+Exercise 1 (URL shortener capacity) is a pure estimation exercise. The expected outcome is not a single correct number but a demonstration that you can anchor your architecture to quantified constraints. A URL shortener at 100M DAU writes 10M new URLs per day (0.1 per user), which at 500 bytes per record over 5 years is roughly 9TB and about 18 billion rows. A single well-provisioned PostgreSQL instance can still serve this with proper indexing, but you are close enough to the comfort limit that the strong answer names table partitioning as the prepared next step while explaining why full sharding is not yet justified.
+
+Exercise 3 (consistent hashing) is a coding exercise that also tests your ability to measure and explain the result. Implement it in Go using `sort.SearchInts` for the ring lookup. The expected measurement: adding a 5th node to a 4-node ring redistributes approximately 20% of keys. Modulo hashing redistributes 80%. Being able to produce and explain this measurement demonstrates that you understand why consistent hashing matters in practice, not just in theory.
+
+Exercise 7 (trade-off articulation) is the most important exercise in this set. Interviewers weight trade-off reasoning more than implementation correctness, because a candidate who can explain why a choice is appropriate can adapt when requirements change, while a candidate who only knows the correct answer to the stated problem cannot.
+
+### Senior @ FAANG: Using These Exercises for Team Calibration
+
+At the staff level, these exercises are useful not just for personal preparation but for calibrating your team's system design skills and identifying coaching opportunities.
+
+**Using Exercise 5 as a design review framework.** The SQL versus NoSQL decision framework in Exercise 5 maps directly to the decision matrix that should appear in every data store ADR. Run this exercise as a team exercise: give each engineer one of the four scenarios and ask them to present their recommendation to the group. The variation in answers, and the quality of the trade-off reasoning, will reveal where the team needs coaching. Common patterns: junior engineers defaulting to the tool they know best rather than the tool that fits the requirements, and senior engineers choosing a tool that is correct but overspecified for the current scale.
+
+**Using Exercise 6 as a production readiness checklist.** The rate limiter exercise has a production readiness dimension that extends beyond the code: who is on call when the Redis backing store for the rate limiter fails, what is the fallback behavior (fail open or fail closed), how is the rate limiter configuration deployed and versioned, and how are rate limit violations logged for security analysis? Walking your team through these questions for an existing rate limiter in your codebase, not just for the exercise, is a most productive coaching activity that builds the operational thinking that FAANG interviewers evaluate for staff-level candidates.
+
+**Capacity estimation as a recurring team exercise.** Exercise 4 (Twitter-scale math) is a useful template for a team exercise. Once a quarter, pick a system your team owns and do the back-of-envelope capacity math from scratch: what is the current traffic, what are the theoretical limits of the current architecture, and how much headroom do you have? Comparing the result against the actual metrics in your monitoring dashboard will either confirm that your mental model is correct or reveal a gap in your understanding. Both outcomes are valuable.
+
+**Trade-off documentation as a staff expectation.** Exercise 7 is, at the staff level, not an exercise. It is a job responsibility. Every architectural decision in your domain should have an associated written trade-off articulation: what was considered, what was chosen, what was sacrificed, and under what conditions the decision should be revisited. Without this documentation, the next engineer to touch the system will not know why it is designed the way it is, and will either preserve an outdated decision or change it without understanding the consequences.

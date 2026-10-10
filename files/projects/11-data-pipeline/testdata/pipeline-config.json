@@ -1,0 +1,28 @@
+{
+  "name": "log-error-analysis",
+  "description": "Count errors per service over 1-hour windows",
+  "parallelism": 8,
+  "source": {
+    "type": "file",
+    "format": "text",
+    "path": "./testdata/sample-logs.log"
+  },
+  "transforms": [
+    { "type": "flatMap",  "fn": "parseLogs"     },
+    { "type": "filter",  "fn": "isError"        },
+    { "type": "map",     "fn": "extractService" }
+  ],
+  "windowing": {
+    "type": "fixed",
+    "duration": "1h"
+  },
+  "aggregation": {
+    "type": "groupByKey",
+    "combine": "count"
+  },
+  "sink": {
+    "type": "file",
+    "format": "csv",
+    "path": "./reports/error-report.csv"
+  }
+}

@@ -1,0 +1,44 @@
+# Chapter 102Q: Edge Computing, Serverless, and WebAssembly with Go
+
+*The future of compute is at the edge, closer to data, closer to users, and closer to zero cold-start time.*
+
+The compute model has fragmented into three distinct paradigms that every senior Go engineer now needs to navigate. Serverless functions - AWS Lambda, Google Cloud Run, Azure Functions - allow you to deploy code without managing servers, paying only for the milliseconds your function is actually executing. Edge runtimes - Cloudflare Workers, Fastly Compute, Deno Deploy - execute code at points of presence distributed across the globe, placing your logic physically close to users and eliminating the round-trip penalty to a centralized origin. WebAssembly targets - both browser WASM and server-side WASI - compile Go programs to a portable binary format that runs with near-native performance inside sandboxed runtimes, opening deployment targets that traditional binaries cannot reach. Each of these paradigms imposes different constraints on how you write, package, and operate Go code, and each demands different optimization strategies.
+
+Go's characteristics make it exceptionally well suited for all three. Its static binary compilation produces self-contained executables with no interpreter startup overhead, which is critical for cold-start latency in serverless environments where a container may be initialized from scratch on every burst. The language's small memory footprint and fast garbage collection mean a Lambda function can comfortably fit in 128 MB of provisioned memory. TinyGo - an alternative Go compiler targeting embedded and WebAssembly targets - produces WASM binaries as small as 50 KB, well within the size budgets of edge runtimes like Cloudflare Workers. And Go's net/http interface is compatible with the AWS Lambda adapter pattern, allowing existing HTTP handlers to be deployed to Lambda with minimal modification. Understanding the lifecycle of each deployment model - from the cold start initialization sequence through handler invocation to shutdown - is the prerequisite for designing Go code that performs predictably in these environments.
+
+This chapter walks through each paradigm in depth. You will build and deploy Lambda functions optimized for cold-start time, using connection pre-warming, minimized `init()` chains, and Provisioned Concurrency. You will compile Go to WebAssembly for browser targets using the standard `GOARCH=wasm` toolchain and to WASI for server-side runtimes. You will build and deploy edge functions to Cloudflare Workers using the WASM compilation target, using Workers KV for distributed state and Durable Objects for strongly consistent coordination. Throughout, you will reason about the cost model for each platform - per-invocation pricing, memory-duration billing, data transfer costs - and design functions to minimize spend at scale without sacrificing reliability.
+
+**What you'll learn in this chapter:**
+- Deploy Go code to AWS Lambda, Google Cloud Functions, and Azure Functions with idiomatic handler patterns and managed lifecycle integration
+- Optimize Lambda cold-start latency through binary size reduction, `init()` minimization, connection pre-warming, and Provisioned Concurrency configuration
+- Compile Go to WebAssembly for browser targets and to WASI for server-side runtimes including Wasmtime and WasmEdge
+- Build and deploy Go-based edge functions to Cloudflare Workers using the WASM compilation target, Workers KV, and Durable Objects
+- Use TinyGo to produce ultra-small WASM binaries (under 100 KB) suitable for edge runtime size budgets
+- Design stateless serverless functions with externalized state, idempotency for at-least-once invocation, and graceful handling of concurrency bursts
+- Compare serverless platforms across cold-start latency, pricing models, runtime constraints, and operational complexity to make informed deployment decisions
+- Instrument serverless and edge functions for observability including cold-start tracking, invocation error rates, and per-region latency percentiles
+
+**Why this matters at scale:**
+Cloudflare's network serves on the order of tens of millions of HTTP requests every second, and Workers puts customer logic directly in that request path, where low-latency custom code runs without the overhead of a round trip to a traditional origin server. In serverless fleets at any large company, cold-start latency and binary size translate directly into user-facing tail latency and provisioned infrastructure cost, which is why the optimization techniques in this chapter are treated as production requirements rather than nice-to-haves.
+
+**Prerequisites:** Chapters 97--102, 102B, 102N (Docker, Kubernetes, Cloud Providers, Networking, FinOps). Familiarity with Go HTTP servers, containerization, and AWS IAM concepts.
+
+---
+
+### Junior → FAANG: Edge and Serverless as Career-Expanding Deployment Targets
+
+The mental model shift from containers to serverless is not "less infrastructure" but "infrastructure with a different failure surface." Lambda functions still fail, still time out, still exhaust memory, and still need observability. The difference is that you no longer control the host. Junior engineers who understand this produce serverless functions that are operationally sound rather than functions that work in staging and fail silently in production.
+
+The prerequisite gap most likely to cause problems: IAM. Every Lambda function, Cloud Run service, and Cloudflare Worker needs an identity, and that identity needs the minimum permissions required to do its job. Engineers who build serverless workloads without understanding execution roles and permission boundaries ship functions with overly broad permissions that become attack surface. Read the IAM fundamentals for your target cloud provider before writing your first function.
+
+First-job habit: treat cold start budget as a first-class design constraint. Before writing a Lambda function, ask: what is the acceptable p99 cold start latency for this endpoint? If the answer is under 100ms, binary size, initialization code, and SDK selection are all constrained. If the answer is 500ms, the constraints loosen. Not asking the question is how you ship a 150MB binary to a latency-sensitive endpoint and only discover the problem in production load testing.
+
+WASM and TinyGo are not mainstream yet, but understanding the WebAssembly Component Model and WASI 2.0 now is the kind of early knowledge that compounds. The engineers who are fluent in WASM when it reaches mainstream adoption will be the ones consulted as platform decisions are made.
+
+### Senior @ FAANG: Edge, Serverless, and WASM as Platform Architecture Decisions
+
+At staff level, the question is never "should we use Lambda?" but "what is our serverless execution model, and what are its boundaries?" An architecture decision record for serverless adoption should define: which workload classes are appropriate for serverless (event-driven, bursty, stateless), which are not (long-running, stateful, latency-sensitive with cold start budgets under 50ms), the organizational standard for function package size and initialization time, and the observability contract (what every function must emit regardless of runtime).
+
+The cold start problem is a platform engineering problem, not a per-function problem. Provisioned concurrency and minimum instance settings for Cloud Run are organizational budget decisions, not per-team decisions. The platform team should publish a tiered cold start policy: tier 1 endpoints (customer-facing, p99 latency SLO under 100ms) get provisioned concurrency, tier 2 endpoints (internal async processing) do not. Teams reference the policy, not the raw AWS documentation.
+
+The WASM Component Model is the most significant architectural inflection in edge computing since the introduction of V8 isolates. The Component Model's interface type system allows language-agnostic composition of Wasm components, meaning a Rust component can be composed with a Go (TinyGo) component at the Wasm layer without FFI or shared memory. For platform teams running multi-language organizations at the edge, this eliminates the current pattern of wrapping non-JS components in JS glue code. The WASI 2.0 socket API also unblocks TCP workloads at the edge, expanding the workload classes that can run on Cloudflare Workers and Fastly Compute. The staff engineer contribution here is an ADR that defines when the organization uses native Workers JS/TS, when it uses WASM components, and when a workload is inappropriate for the edge entirely (stateful, large memory, long-running). That decision boundary, documented and enforced, prevents the organizational pattern of teams independently deciding to move workloads to the edge without considering cold start, memory limits, CPU time limits, or the operational complexity of distributed edge deployments.

@@ -1,0 +1,37 @@
+## Exercises
+
+1. **Kappa with State**: Implement a Kappa processor that maintains per-user session statistics (events per session, session duration, conversion flag). Use Redis as the state store. Handle session timeout by expiring keys after 30 minutes of inactivity.
+
+2. **Event Store with Snapshots**: Extend `PostgresEventStore` with snapshot support. After N events, persist a serialized aggregate state as a snapshot. On `Load()`, start from the latest snapshot + events after it. Measure the load time improvement.
+
+3. **CQRS Order Service**: Build a full order service with: `OrderAggregate` (place/add items/confirm/cancel), `PostgresEventStore`, `OrderProjection` read model, HTTP handler using write model for commands and read model for queries. Add tests verifying idempotent event replay.
+
+4. **Data Contract CI Check**: Implement a CLI tool that reads data contract YAML files and validates them against a schema registry (or JSON schema files). Fail with exit code 1 if any contract violation is found. Integrate into a GitHub Actions workflow.
+
+5. **Windowed Word Count**: Build a streaming word count that processes text events from a channel, computes 1-minute tumbling window counts per word with watermark-based late data handling, and writes results to Postgres. Use `pprof` to profile and optimize memory usage.
+
+### Junior → FAANG: Scaffolded Walkthrough for Exercise 2
+
+If you have never built an event store, exercise 2 is the one to start with because it forces you to confront every operational concern in miniature. The scaffold looks like this. Begin with a `snapshots` table keyed by `aggregate_id` and `version` with a JSONB column for the serialized state. Add an index on `(aggregate_id, version DESC)` so the latest-snapshot query returns in a single seek. Write a `TakeSnapshot(ctx, aggregate)` method that serializes the aggregate state and inserts a row. Write a `LoadFromSnapshot(ctx, id)` method that reads the latest snapshot, then reads events with version greater than the snapshot version, and applies them in order. The success criterion is a benchmark that shows load time for a 10,000-event aggregate drops from seconds to tens of milliseconds.
+
+First-job reflex to build while solving exercise 2. Ask what happens if the snapshot write fails but the event append succeeds. The answer is nothing bad, because snapshots are an optimization and can always be rebuilt from events. Ask what happens if the snapshot format changes because you refactored the aggregate. The answer is that you must version the snapshot format and fall back to full replay when the version does not match. These are the questions that separate a junior who shipped the feature from a junior who shipped the feature and understood it.
+
+Interview follow-through. Exercises 1, 3, and 5 each produce a portfolio artifact you can walk an interviewer through. Prepare a two-minute narrative for each: the problem, the design choice, the tradeoff you rejected, the metric that proves the system works. For exercise 3, the metric is idempotent replay produces identical read-model state across two independent rebuilds. For exercise 5, the metric is P99 watermark-to-output latency under 10 seconds with allowed lateness of 30 seconds. Numbers beat adjectives in every interview loop.
+
+### Senior @ FAANG: Staff Extensions, Platform Framing, and Bar-Raiser Variants
+
+Staff-level extensions turn each exercise from a coding task into a platform decision. For exercise 2, the staff extension is to design the snapshot policy as a platform-wide contract. Which aggregates snapshot at what cadence, who pays the storage cost, how do you expose snapshot health as an SLO, and what is the runbook when snapshot writes lag the event append rate by more than 10 minutes. Deliverable: a one-page snapshot policy document with named owners and named metrics, not just working code.
+
+Exercise 3 staff extension. Convert the order service into a CDC-fed data-mesh node. The service owns its Postgres event store, publishes a typed output port via Debezium to Kafka, and registers a data contract in the platform schema registry. Consumers subscribe via contract, not via direct table access. Deliverable: the contract YAML, the SLO document for freshness and completeness, and an ADR that records the choice of output port format (Avro with schema evolution rules named, or Protobuf with a named proto file ownership model). The grading rubric for staff scope is whether the order service can be consumed by three downstream teams without any of them reading the producer's source code.
+
+Exercise 1 staff extension. Convert the Redis-backed Kappa processor into an exactly-once Flink job with RocksDB state. Sizing target: 1 million events per second sustained, 50 TB of state, checkpoint interval of 60 seconds, recovery SLO of 5 minutes. Deliverable: a capacity plan naming task manager count, RocksDB memory per slot, S3 bucket layout for checkpoints, Kafka consumer group sizing, and the backpressure playbook. Name the failure modes you are designing against: checkpoint timeout under backpressure, RocksDB compaction stalls, S3 throttling during recovery, Kafka rebalance storms. A staff candidate who cannot name these failure modes has not actually operated Flink at this scale.
+
+Bar-raiser variant one. Build an event-sourced account ledger for a bank with snapshots, cryptographic event chaining, retention policies per jurisdiction, and a regulator-query API that must return any account's full history within the regulator's mandated window. Deliverable includes the key management design, the cryptographic proof-of-inclusion protocol, the retention state machine, and the disaster recovery plan with RPO and RTO named per jurisdiction.
+
+Bar-raiser variant two. Design a CDC-fed data-mesh node for a retail company. The node owns product catalog data, publishes a contract, and must support 50 internal consumers at freshness SLOs ranging from 5 seconds to 24 hours. Deliverable: the contract DSL, the fan-out architecture that meets the tightest SLO without overwhelming Postgres, the schema evolution policy, the consumer onboarding self-service flow, and the deprecation policy for old contract versions with named notice periods.
+
+Bar-raiser variant three. Implement a stateful Flink job with exactly-once semantics for a real-time fraud detection system processing 1 million events per second. Deliverable: the checkpoint strategy, the state schema evolution plan, the model-serving integration with named latency budgets per hop, the A/B testing story for new model versions, and the incident response runbook for model drift detection. The grading question is whether the candidate names the data-science-to-platform handoff clearly enough that a fraud data scientist could deploy a new model in under an hour without a platform engineer on call.
+
+Maturity model applied to the exercises. A team at L1 can complete exercise 1 as a prototype. A team at L2 can complete exercises 1 through 3 as production services. A team at L3 has completed all five and has runbooks. A team at L4 has the staff extensions deployed with SLOs and platform integration. A team at L5 has the bar-raiser variants deployed at company scale with governance, self-service onboarding, and a charter that names the next three capability investments. The exercises are a ladder, not a checklist, and knowing where your org stands on the ladder is the staff-level insight worth naming in any design review.
+
+---

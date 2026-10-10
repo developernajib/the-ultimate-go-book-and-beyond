@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>The Ultimate Go Book &amp; Beyond</title>
+    <style>
+        /* From extension vscode.github */
+        /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+        .vscode-dark img[src$=\#gh-light-mode-only],
+        .vscode-light img[src$=\#gh-dark-mode-only],
+        .vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+        .vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+            display: none;
+        }
+    </style>
+
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+    <style>
+        .task-list-item {
+            list-style-type: none;
+        }
+
+        .task-list-item-checkbox {
+            margin-left: -20px;
+            vertical-align: middle;
+            pointer-events: none;
+        }
+    </style>
+    <style>
+        :root {
+            --color-note: #0969da;
+            --color-tip: #1a7f37;
+            --color-warning: #9a6700;
+            --color-severe: #bc4c00;
+            --color-caution: #d1242f;
+            --color-important: #8250df;
+        }
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-note: #2f81f7;
+                --color-tip: #3fb950;
+                --color-warning: #d29922;
+                --color-severe: #db6d28;
+                --color-caution: #f85149;
+                --color-important: #a371f7;
+            }
+        }
+    </style>
+    <style>
+        .markdown-alert {
+            padding: 0.5rem 1rem;
+            margin-bottom: 16px;
+            color: inherit;
+            border-left: .25em solid #888;
+        }
+
+        .markdown-alert>:first-child {
+            margin-top: 0
+        }
+
+        .markdown-alert>:last-child {
+            margin-bottom: 0
+        }
+
+        .markdown-alert .markdown-alert-title {
+            display: flex;
+            font-weight: 500;
+            align-items: center;
+            line-height: 1
+        }
+
+        .markdown-alert .markdown-alert-title .octicon {
+            margin-right: 0.5rem;
+            display: inline-block;
+            overflow: visible !important;
+            vertical-align: text-bottom;
+            fill: currentColor;
+        }
+
+        .markdown-alert.markdown-alert-note {
+            border-left-color: var(--color-note);
+        }
+
+        .markdown-alert.markdown-alert-note .markdown-alert-title {
+            color: var(--color-note);
+        }
+
+        .markdown-alert.markdown-alert-important {
+            border-left-color: var(--color-important);
+        }
+
+        .markdown-alert.markdown-alert-important .markdown-alert-title {
+            color: var(--color-important);
+        }
+
+        .markdown-alert.markdown-alert-warning {
+            border-left-color: var(--color-warning);
+        }
+
+        .markdown-alert.markdown-alert-warning .markdown-alert-title {
+            color: var(--color-warning);
+        }
+
+        .markdown-alert.markdown-alert-tip {
+            border-left-color: var(--color-tip);
+        }
+
+        .markdown-alert.markdown-alert-tip .markdown-alert-title {
+            color: var(--color-tip);
+        }
+
+        .markdown-alert.markdown-alert-caution {
+            border-left-color: var(--color-caution);
+        }
+
+        .markdown-alert.markdown-alert-caution .markdown-alert-title {
+            color: var(--color-caution);
+        }
+    </style>
+
+</head>
+
+<body class="vscode-body vscode-light">
+    <span id="markdown-mermaid" aria-hidden="true"
+        data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+    <h1 id="the-ultimate-go-book-and-beyond">The Ultimate Go Book &amp; Beyond</h1>
+    <blockquote>
+        <p><em>&quot;You came for the simplicity. You'll stay for the concurrency.&quot;</em></p>
+    </blockquote>
+    <hr>
+    <p><strong>The Ultimate Go Book &amp; Beyond</strong> is more than a Go book. It is a complete software engineering
+        education.</p>
+    <p>Across <strong>165+ chapters</strong>, <strong>100+ sub-chapters</strong>, <strong>22 parts</strong>, <strong>15
+            capstone projects</strong>,
+        <strong>25 system design walkthroughs</strong>, and <strong>5,900+ sections</strong>, this book takes you from
+        writing your first line of Go to confidently designing systems at scale and growing as a well-rounded engineer.
+    </p>
+    <p>This book will not get you a job. Only you can do that. But if you put in the work, study consistently, build
+        real projects, and push yourself to understand the hard parts, the knowledge here can help you compete for roles
+        at any company, including large multinationals and top-tier tech companies like FAANG. The opportunity is real.
+        The outcome depends entirely on your effort.</p>
+    <hr>
+    <h3 id="what-makes-this-book-different">What Makes This Book Different</h3>
+    <p>Most programming books teach you a language. This one teaches you <strong>how to think like an engineer</strong>.
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>What You'll Learn</th>
+                <th>Why It Matters</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Go 1.27.1 fundamentals through internals</td>
+                <td>Master the language from syntax to scheduler</td>
+            </tr>
+            <tr>
+                <td>Concurrency patterns &amp; memory model</td>
+                <td>Build systems that scale to millions of users</td>
+            </tr>
+            <tr>
+                <td>Database engineering &amp; caching</td>
+                <td>PostgreSQL, Redis, MongoDB, Cassandra, DynamoDB</td>
+            </tr>
+            <tr>
+                <td>REST, gRPC, GraphQL &amp; microservices</td>
+                <td>Design APIs that survive production traffic</td>
+            </tr>
+            <tr>
+                <td>25 system design walkthroughs</td>
+                <td>Uber, WhatsApp, Netflix, Google Search, and more</td>
+            </tr>
+            <tr>
+                <td>Docker, Kubernetes, Terraform, eBPF</td>
+                <td>Deploy and operate production infrastructure</td>
+            </tr>
+            <tr>
+                <td>Security, observability &amp; SRE</td>
+                <td>Keep systems safe, visible, and reliable</td>
+            </tr>
+            <tr>
+                <td>AI/ML, LLMs, agents &amp; MCP/A2A</td>
+                <td>Build LLM-backed services and agent systems in Go</td>
+            </tr>
+            <tr>
+                <td>150 LeetCode solutions in Go</td>
+                <td>Pass the coding interview</td>
+            </tr>
+            <tr>
+                <td>Career guide &amp; salary negotiation</td>
+                <td>Get hired, get promoted, get paid</td>
+            </tr>
+        </tbody>
+    </table>
+    <blockquote>
+        <p>Go is the vehicle. <strong>Engineering thinking is the destination.</strong></p>
+    </blockquote>
+    <hr>
+    <h3 id="acknowledgments">Acknowledgments</h3>
+    <p>This book stands on the shoulders of giants. It would not exist without the Go programming language, the people
+        who created it, and the community that makes it thrive.</p>
+    <hr>
+    <h4 id="to-google">To Google</h4>
+    <p><strong>Thank you, Google</strong>, for creating Go, open-sourcing it, and investing in it as one of the most
+        important languages in modern infrastructure. Go powers some of the largest systems on the planet, and that
+        started with a decision at Google to build something better.</p>
+    <hr>
+    <h4 id="to-the-creators-of-go">To the Creators of Go</h4>
+    <p>Three legendary computer scientists came together at Google in 2007 and created a language that changed how we
+        build software:</p>
+    <blockquote>
+        <p><strong>Robert Griesemer</strong>, Co-creator of Go</p>
+        <p>His work on the Go compiler, the generics design, and the language specification gave Go its precision and
+            power. Every type you define and every interface you implement carries his fingerprints.</p>
+    </blockquote>
+    <blockquote>
+        <p><strong>Rob Pike</strong>, Co-creator of Go</p>
+        <p>The architect of Go's simplicity, and before that a member of the Bell Labs Unix team and co-creator of
+            UTF-8. His vision for a language that is easy to read, easy to write, and easy to maintain is why Go feels
+            the way it does. As he said: <em>&quot;Simplicity is complicated.&quot;</em> That one sentence defines Go.
+        </p>
+    </blockquote>
+    <blockquote>
+        <p><strong>Ken Thompson</strong>, Co-creator of Go, Turing Award Winner</p>
+        <p>Co-creator of Unix and creator of the B language, the direct ancestor of C. His influence on Go runs deep:
+            favoring clarity over cleverness, composition over inheritance, and getting things done over getting things
+            perfect. We are all building on foundations he laid decades ago.</p>
+    </blockquote>
+    <hr>
+    <h4 id="to-the-go-team-at-google">To the Go Team at Google</h4>
+    <p>The language didn't stop at three creators. A world-class team has shaped Go into what it is today:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Contribution</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Russ Cox</strong></td>
+                <td>Go technical lead 2012 to 2024, modules system, security</td>
+            </tr>
+            <tr>
+                <td><strong>Ian Lance Taylor</strong></td>
+                <td>Generics implementation, GCC frontend</td>
+            </tr>
+            <tr>
+                <td><strong>Brad Fitzpatrick</strong></td>
+                <td>HTTP/2, standard library, infrastructure</td>
+            </tr>
+            <tr>
+                <td><strong>Bryan Mills</strong></td>
+                <td>Testing, modules, concurrency tools</td>
+            </tr>
+            <tr>
+                <td><strong>Cherry Mui</strong></td>
+                <td>Compiler, linker, runtime optimizations</td>
+            </tr>
+            <tr>
+                <td><strong>Michael Knyszek</strong></td>
+                <td>Garbage collector, memory management</td>
+            </tr>
+            <tr>
+                <td><strong>Austin Clements</strong></td>
+                <td>Go technical lead since 2024, GC design, runtime architecture</td>
+            </tr>
+            <tr>
+                <td><strong>Than McIntosh</strong></td>
+                <td>Compiler, profile-guided optimization</td>
+            </tr>
+            <tr>
+                <td><strong>Damien Neil</strong></td>
+                <td><code>net/http</code>, network stack evolution</td>
+            </tr>
+            <tr>
+                <td><strong>Filippo Valsorda</strong></td>
+                <td>Cryptography leadership, post-quantum rollout, stewardship of widely used Go crypto packages</td>
+            </tr>
+            <tr>
+                <td><strong>Carlos Amedee</strong></td>
+                <td>Release engineering, Go release management</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>And the hundreds of contributors who submit proposals, write RFCs, review code, and improve the standard library
+        every single day. Every <code>go build</code>, every goroutine, every line of Go code in the world exists
+        because of your work.</p>
+    <hr>
+    <h4 id="to-renée-french">To Renée French</h4>
+    <p>Thank you for designing the <strong>Go Gopher</strong>, the beloved mascot that gives the Go community its
+        personality. The Gopher is more than a logo. It represents a community that values friendliness,
+        approachability, and fun. Every conference talk, every sticker on a laptop, every tutorial with a smiling
+        Gopher: that's your legacy.</p>
+    <hr>
+    <h4 id="to-the-go-community">To the Go Community</h4>
+    <p>To the <strong>open-source contributors</strong> who build the packages we all depend on. To the <strong>blog
+            writers</strong> who explain complex concepts in simple words. To the <strong>conference speakers</strong>
+        who share their experience on stage. To <strong>everyone who answers questions</strong> on Stack Overflow,
+        Reddit, the Go Discord, and the mailing lists.</p>
+    <p>You make Go not just a language, but a <strong>home for developers</strong>.</p>
+    <hr>
+    <h4 id="to-every-reader">To Every Reader</h4>
+    <p>Thank you for picking up this book. Whether you read one chapter or all 165+, whether you're a student, a career
+        changer, a senior engineer, or someone just curious about Go": <strong>I started this book for you</strong>.</p>
+    <p>I hope it makes you a better engineer. I hope it opens doors you didn't know existed. And I hope that someday,
+        you'll pass on what you've learned to someone else.</p>
+    <hr>
+    <h4 id="and-finally">And Finally...</h4>
+    <p>To <strong>everyone who has ever taught me something</strong>, through code, conversation, blog posts, conference
+        talks, open-source contributions, or even a well-written error message: this book is built on the generosity of
+        the entire software engineering community.</p>
+    <blockquote>
+        <p><em>&quot;If I have seen further, it is by standing on the shoulders of giants.&quot;</em></p>
+        <p><strong>Isaac Newton</strong></p>
+    </blockquote>
+    <p>Thank you all. Now let's write some Go.</p>
+    <hr>
+    <h3 id="connect">Connect</h3>
+    <p>This book was started by <strong>Md. Najib Islam</strong>. Errors, suggestions, and contributions are genuinely
+        welcome. This book is a living document, and reader feedback
+        directly shapes future revisions. If a code example behaves unexpectedly, an explanation is unclear, or you spot
+        a gap worth filling, opening a GitHub issue is the fastest path to getting it fixed for every reader who
+        follows.</p>
+    <pre><code> ╭──────────────────────────────────────────────────────╮
+ │                                                      │
+ │   Md. Najib Islam                                    │
+ │   Software Engineer                                  │
+ │                                                      │
+ │   Email:    developernajib@pm.me                 │
+ │   GitHub:   github.com/developernajib               │
+ │   LinkedIn: linkedin.com/in/developernajib           │
+ │                                                      │
+ │   Found a bug? Have feedback? Want to contribute?    │
+ │   Open an issue or reach out, I'd love to hear       │
+ │   from you.                                          │
+ │                                                      │
+ ╰──────────────────────────────────────────────────────╯
+</code></pre>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Email</strong></td>
+                <td><a href="mailto:developernajib@pm.me">developernajib@pm.me</a></td>
+            </tr>
+            <tr>
+                <td><strong>GitHub</strong></td>
+                <td><a href="https://github.com/developernajib">github.com/developernajib</a></td>
+            </tr>
+            <tr>
+                <td><strong>LinkedIn</strong></td>
+                <td><a href="https://linkedin.com/in/developernajib">linkedin.com/in/developernajib</a></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+
+
+
+</body>
+
+</html>

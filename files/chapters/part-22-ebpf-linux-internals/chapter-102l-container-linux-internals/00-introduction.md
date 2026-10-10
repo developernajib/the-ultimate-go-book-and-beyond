@@ -1,0 +1,48 @@
+# Chapter 102L: Container & Linux Internals - Namespaces, cgroups, and Building Containers in Go
+
+> *"A container is not a virtual machine, a sandbox, or a security boundary by default. It is a carefully configured process with restricted visibility and resource limits - and understanding that distinction is the difference between operating containers safely and creating a false sense of isolation."*
+
+The container revolution of the 2010s was built entirely on Linux kernel primitives that had existed for years before Docker made them accessible. Namespaces partition the kernel's global resources - process IDs, network interfaces, mount points, UTS hostnames, user IDs, IPC objects - so that processes inside a namespace see only their own isolated view of each resource. Control groups (cgroups) enforce resource accounting and limits: CPU shares, memory hard limits, block I/O bandwidth, and network priority. Together, these two mechanisms create the illusion of isolation without the overhead of hardware virtualization. Docker, containerd, and Kubernetes are, at their core, orchestration layers that configure these kernel features and manage the lifecycle of the processes running inside them.
+
+Go is exceptionally well positioned for container runtime development. The `os/exec` and `syscall` packages expose the `clone(2)`, `unshare(2)`, `mount(2)`, and `pivot_root(2)` syscalls needed to create and configure namespaces. The `SysProcAttr` struct on `exec.Cmd` lets you declare namespace flags, UID/GID mappings, and capability sets declaratively, and the kernel honors them at fork time. Writing a minimal container runtime in Go is an instructive exercise precisely because it forces you to confront what Docker and containerd actually do: set up a network namespace, configure a veth pair, apply cgroup limits, strip Linux capabilities, apply a seccomp filter, mount an overlay filesystem, and finally `exec` the container's init process.
+
+Security is where container knowledge becomes critical. Many high-profile container escapes exploited the gap between assumed and actual isolation - a container that retained `CAP_SYS_ADMIN` could remount the host filesystem. A container with unrestricted syscalls could exploit kernel vulnerabilities through `ptrace` or `userfaultfd`. The OCI runtime specification codifies the expectations that runtimes and container images must meet, and understanding it lets you audit whether your production containers are actually as isolated as your security policy requires. This chapter builds that understanding from the ground up, with working Go code that implements each isolation primitive individually before combining them into a functional container runtime.
+
+**What you'll learn in this chapter:**
+
+- Linux namespaces in depth: PID, network, mount, UTS, IPC, user, and cgroup namespaces and how to create them from Go
+- cgroups v2: unified hierarchy, resource controllers (cpu, memory, io, pids), and enforcing limits programmatically from Go
+- Implementing seccomp-BPF profiles to create syscall allow-lists that prevent kernel exploitation from inside containers
+- Dropping Linux capabilities to enforce least-privilege: understanding the capability model and safe default sets
+- Building a minimal OCI-compliant container runtime in Go: namespace setup, cgroup configuration, overlay mount, and exec
+- Overlay filesystems: how UpperDir/LowerDir/WorkDir compositing works and how container image layers are assembled at runtime
+- Network namespace isolation: creating veth pairs, configuring bridge interfaces, and enabling inter-container routing
+- Interpreting the OCI Runtime Specification and OCI Image Specification to audit and harden production container deployments
+
+**Why this matters at scale:**
+
+Docker and containerd are written in Go, and their core isolation logic uses exactly the syscalls covered in this chapter. Kubernetes's kubelet interacts with container runtimes through the CRI interface, and understanding namespace and cgroup semantics is essential for diagnosing resource contention and noisy-neighbor problems in multi-tenant clusters. Google's gVisor - a userspace kernel that intercepts container syscalls - was built to address the kernel attack surface that this chapter exposes. Sysdig's Falco uses kernel tracing to detect container escape attempts by watching for unexpected namespace operations, capability usage, and mount calls.
+
+**Prerequisites:** Familiarity with Linux process management concepts (fork, exec, signals, file descriptors), basic understanding of networking (IP addresses, bridges, routing), and Go proficiency at the level of previous chapters. Root access or a Linux VM with `CAP_SYS_ADMIN` is required to run the container runtime examples.
+
+### Junior → FAANG: Demystifying Containers as Configured Processes
+
+The most important concept to internalize from this chapter's introduction is that a container is not a special kind of process: it is an ordinary Linux process running with a specific set of kernel features applied. When you understand that `docker run` ultimately calls `clone()` with `CLONE_NEWPID | CLONE_NEWNET | CLONE_NEWMNT`, executes a process inside the new namespaces, and applies a cgroup to limit resources, the entire container ecosystem becomes legible. Every Kubernetes pod, every Docker container, every Fargate task reduces to this pattern.
+
+The first prerequisite gap to close before this chapter is understanding the Linux process lifecycle at the syscall level. Read the man pages for `clone(2)`, `unshare(2)`, `setns(2)`, `pivot_root(2)`, and `execve(2)`. These five syscalls are the foundation of every container runtime. Without knowing what they do, reading the container runtime source code or debugging container failures is guesswork.
+
+A concrete exercise to do before the chapter: run `unshare --pid --mount --net --fork /bin/bash` in a terminal, then in another terminal run `cat /proc/<pid>/status` for the bash process and observe the namespace IDs in the `NSpid` and `NSMnt` lines. This shows directly that the bash process has different namespace IDs than the host. Then run `ls /proc/1/ns/` inside the unshared bash to see the namespace symlinks from inside the new namespace. This exercise, which takes five minutes, builds more intuition than reading three pages of documentation.
+
+Interview framing at the entry level: "What is the difference between a container and a virtual machine?" The correct answer distinguishes kernel sharing (containers share the host kernel, VMs have their own kernel), isolation mechanism (containers use namespaces and cgroups, VMs use hardware virtualization), and security boundary (VMs are a stronger isolation boundary because kernel exploits in a container can escape to the host, while a VM escape requires a hypervisor vulnerability). Do not just say "containers are lightweight": explain why.
+
+### Senior @ FAANG: Container Internals as a Platform Safety Foundation
+
+At the senior level, the chapter introduction quote is the design principle that governs every architectural decision about container security. "A container is not a security boundary by default" is not a caveat: it is the threat model. Container security is defense in depth, not a single boundary. The namespace isolation prevents one container from seeing another's processes, but a root process inside a container can still exploit kernel vulnerabilities to escape. Capabilities restrict what root inside the container can do, but not all capabilities can be safely dropped. Seccomp reduces the kernel attack surface, but an incomplete profile still exposes dangerous syscalls.
+
+The ADR for container security at FAANG covers all four isolation layers: namespaces (which are enabled by default and which require explicit configuration), capabilities (which are dropped beyond the container runtime's minimum set), seccomp profiles (whether to use Docker's default profile, a custom profile, or a Kubernetes seccomp policy), and the Linux Security Module in use (AppArmor profiles or SELinux contexts). Changes to any of these layers require a security review, not just an engineering review, because the blast radius of a misconfiguration is container escape.
+
+Understanding container internals is the prerequisite for diagnosing container incidents that are invisible to application-level monitoring. When a container exits with code 137 (OOM kill), the signal comes from the kernel's OOM killer acting on the container's cgroup. `cat /sys/fs/cgroup/<pod-cgroup>/memory.stat` tells you which memory category consumed the limit. When a container cannot connect to a service, the failure may be in the network namespace (missing veth pair), the routing table (wrong gateway), or the iptables rules in the host namespace (kube-proxy rules missing). Engineers who can navigate these layers diagnose P0 incidents in minutes rather than hours.
+
+Platform design at the staff level for container infrastructure involves choosing the container runtime appropriate for each workload's isolation requirement. `runc` provides namespace isolation. `gVisor`'s `runsc` adds a user-space kernel that intercepts all syscalls, providing stronger isolation at the cost of performance (approximately 10-20% overhead for syscall-heavy workloads). Kata Containers runs containers in lightweight VMs for full kernel isolation. The ADR for runtime selection must specify which workloads require which isolation level, what the performance budget is for each isolation tier, and how the runtime choice is enforced (via Kubernetes RuntimeClass). This is the kind of multi-year infrastructure decision that a staff engineer drives with the security and platform teams.
+
+---

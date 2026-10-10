@@ -1,0 +1,22 @@
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- **Understand migration fundamentals** including versioning, ordering, and rollback strategies
+- **Use golang-migrate and goose** for SQL and Go-based migrations with `embed.FS` (Go 1.16+) support
+- **Implement Atlas declarative migrations** for schema-as-code workflows, including `atlas migrate lint` for CI-gated destructive-change detection
+- **Execute zero-downtime migrations** using expand-and-contract patterns, and evaluate `pgroll` for Postgres multi-version schema serving
+- **Apply online-DDL techniques** on Postgres (`CONCURRENTLY`, `NOT VALID`) and MySQL 8 (`ALGORITHM=INPLACE/INSTANT, LOCK=NONE`)
+- **Build complete migration management systems** with version tracking, locking, and validation
+- **Test migrations thoroughly** including up/down verification and data integrity checks
+- **Integrate migrations with CI/CD** pipelines for automated deployment workflows
+
+### Junior → FAANG: How to read this objective list
+
+Treat these objectives as a progression ladder rather than a buffet. The first three (fundamentals, a tool, schema-as-code) are table stakes for an L3 or L4 backend engineer at any tier-one shop. You should be able to take a feature ticket that says "add `deleted_at` to `orders`", produce the up and down SQL, wire it into the service's migration loader, and explain in standup why the delete is a soft delete. If you cannot do that unsupervised you are not ready for on-call rotation on a service that owns its own database. Objectives four and five (zero-downtime and online DDL) are where promo packets to senior start. Interviewers probe these by asking you to walk through a concrete migration on a "large" table. The calibration signal is whether you reach for `CREATE INDEX CONCURRENTLY`, `NOT VALID`, a lock_timeout, and a backfill loop without being prompted. Objectives six through eight (systems, tests, CI/CD) are how staff engineers gain traction: you are no longer writing the migration, you are writing the rails that keep thirty other engineers from breaking production with theirs. A reasonable study plan is: read the chapter end-to-end once, then reread sections 36.1 and 36.5 and build the worked examples locally against a Dockerised Postgres 18, then simulate a failure (kill the migration mid-apply, recover from `dirty = true`) before moving to sections on Atlas and zero-downtime.
+
+### Senior @ FAANG: What these objectives omit and what you still owe the org
+
+The list above is operator-grade but it does not name the staff deliverables that actually show up in a performance review. Those deliverables are: (1) the migration ADR that captures the tool choice, the lint policy, the approval workflow, and the expand-and-contract window length, reviewed by the database platform team and the security team for audit logging requirements. (2) the CI lint ruleset, which at minimum must reject non-concurrent index creation on tables above a size threshold, reject `DROP COLUMN` and `DROP TABLE` without a two-phase marker, reject `ALTER TABLE ... ALTER COLUMN ... TYPE` that forces a rewrite, reject implicit `NOT NULL` adds on populated columns, and reject missing `lock_timeout` and `statement_timeout` on any session that runs DDL. Atlas ships most of these as named rules (DS101 through DS105 for destructive, MF101 through MF108 for modification-flow) and the staff engineer's job is to pick which rules are errors versus warnings versus off. (3) the rollback runbook. Down migrations are a lie for any destructive change. The real rollback plan is either "roll forward with a second migration that restores the shape" or "promote a logical-replica that was left at the old schema." Document which one applies to which migration class. (4) the schema drift detector, a scheduled job that runs `atlas schema inspect` (or equivalent) against every environment and alerts on divergence from the migration repo. Drift is the leading indicator of manual production edits by a teammate under pressure, which is the leading indicator of a post-incident review. (5) the schema registry decision: if two services read each other's tables (even through CDC), their migrations are coupled and you need either Atlas Cloud, a Protobuf-over-Buf Schema Registry wrapper for logical rows, or a documented cross-team review process. The chapter body teaches you the mechanics. These five deliverables are how you apply the mechanics at organizational scale.
+
+---

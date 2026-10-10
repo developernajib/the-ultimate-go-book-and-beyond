@@ -1,0 +1,98 @@
+version: "3.9"
+
+# Three-node GoCache cluster.
+# Node 1 is the master; nodes 2 and 3 are replicas.
+# Prometheus scrapes metrics from all three nodes.
+
+services:
+
+  # ── GoCache nodes ────────────────────────────────────────────────────────────
+
+  gocache-node1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gocache-node1
+    command: ["-addr", ":6379", "-maxmemory", "536870912"]
+    ports:
+      - "6379:6379"
+      - "2112:2112"
+    environment:
+      - CACHE_ADDR=:6379
+      - MAX_MEMORY=536870912
+      - METRICS_ADDR=:2112
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  gocache-node2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gocache-node2
+    command: ["-addr", ":6380", "-maxmemory", "536870912"]
+    ports:
+      - "6380:6380"
+      - "2113:2112"
+    environment:
+      - CACHE_ADDR=:6380
+      - MAX_MEMORY=536870912
+      - METRICS_ADDR=:2112
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    depends_on:
+      gocache-node1:
+        condition: service_healthy
+
+  gocache-node3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gocache-node3
+    command: ["-addr", ":6381", "-maxmemory", "536870912"]
+    ports:
+      - "6381:6381"
+      - "2114:2112"
+    environment:
+      - CACHE_ADDR=:6381
+      - MAX_MEMORY=536870912
+      - METRICS_ADDR=:2112
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    depends_on:
+      gocache-node1:
+        condition: service_healthy
+
+  # ── Observability ─────────────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: gocache-prometheus
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    depends_on:
+      - gocache-node1
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: gocache-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana-data:

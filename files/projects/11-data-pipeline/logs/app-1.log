@@ -1,0 +1,6 @@
+2026-09-15 10:00:01 [ERROR] [auth-service] database connection timed out
+2026-09-15 10:00:02 [INFO] [auth-service] token generated successfully
+2026-09-15 10:00:03 [ERROR] [payment-service] payment gateway unreachable
+2026-09-15 10:00:04 [ERROR] [auth-service] invalid credentials
+2026-09-15 10:00:05 [INFO] [order-service] order created id=101
+2026-09-15 10:00:06 [ERROR] [order-service] inventory check failed

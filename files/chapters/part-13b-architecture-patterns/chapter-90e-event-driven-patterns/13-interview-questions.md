@@ -1,0 +1,31 @@
+## 90E.12 Event-Driven Architecture Interview Questions
+
+**Q: What's the difference between Event Notification and Event-Carried State Transfer?**
+
+A: **Event Notification** - the event just says "something happened" (e.g., `UserUpdated {userID: "123"}`). Consumers must query back to the source to get the new state. Simple but creates coupling and extra network calls - every consumer needs access to the source service's API or database. **Event-Carried State Transfer** - the event includes the full new state of the entity. Consumers are self-sufficient, can cache state locally, and do not need to query back. Better for read-heavy, consumer-heavy scenarios but produces larger events and requires more care about stale-state (events must be processed in order per entity). Choose ECST when consumers need the data immediately and cannot tolerate the extra network round-trip.
+
+**Q: How do you handle exactly-once processing with Kafka?**
+
+A: Kafka provides at-least-once delivery guarantees by default. Exactly-once requires two components: (1) **Idempotent consumer** - before processing an event, check a deduplication store (Redis with TTL, or a database table) for the event ID, skip if already processed, and commit after processing. (2) **Transactional outbox** - ensure the database write and the Kafka produce happen atomically via the outbox pattern, preventing the "wrote to DB but failed to publish" or "published but failed to write to DB" cases. Kafka's own transactional producer API (`enable.idempotence=true`, `transactional.id`) provides exactly-once within a single Kafka cluster but not across external systems. For cross-system exactly-once, the outbox pattern is the correct approach.
+
+**Q: How do you evolve event schemas without breaking consumers?**
+
+A: Five strategies in increasing order of complexity: (1) **Only add optional fields** - old consumers ignore unknown fields (if your serialization format supports this: JSON and Protobuf do, while Avro requires a schema registry). (2) **Schema registry with compatibility mode** - register schemas and enforce backward/forward compatibility before deployment. (3) **Upcasters** - convert old event format to new format at consumption time, allowing the domain model to evolve without maintaining multiple code paths. (4) **Event versioning** - `OrderCreated.v1`, `OrderCreated.v2` - consumers subscribe to the version(s) they support. (5) **Consumer-driven contract testing** - Pact or similar tools verify that a producer change does not break any registered consumer's expectations before the producer deploys.
+
+**Q: What is the Outbox Pattern and why is it necessary for reliable event publishing?**
+
+A: The Outbox Pattern solves the dual-write problem: without it, you must write to the database AND publish to Kafka as two separate operations - if the process crashes between them, you get data in the DB but no event published (silent data inconsistency). The outbox writes both in a single database transaction: the domain state change and an `outbox_events` record in the same DB transaction. A separate relay process (Debezium CDC or a polling worker) reads the outbox table and publishes to Kafka, then marks the row as published. This guarantees at-least-once event delivery: the event is always published if the DB transaction committed. The relay's publish is idempotent - retrying it is safe because the consumer deduplicates by event ID.
+
+**Q: How do you prevent a poison pill message from stalling a Kafka consumer group?**
+
+A: A poison pill is a malformed or unprocessable message that causes a consumer to error on every processing attempt. Without mitigation, this stalls the partition because the consumer keeps retrying without advancing the offset. The solution: (1) Catch all processing errors, (2) after N retries (configurable), publish the message to a dead-letter topic, (3) advance the offset past the poison pill. In Go with `segmentio/kafka-go` or `confluent-kafka-go`, this means catching the error, writing to a `{topic}.dlq` topic, then committing the offset regardless. Dead-letter topics should be monitored with alerts - accumulated DLQ messages indicate a bug that needs fixing, not just retrying.
+
+**Q: What is the difference between NATS JetStream and Kafka, and when would you choose one over the other?**
+
+A: **Kafka** is a distributed commit log optimized for very high throughput (millions of messages/sec), long retention (weeks or months), complex consumer group semantics, and exactly-once transactional producers. Best for: event sourcing stores, audit logs, data pipelines, analytics. **NATS JetStream** is a lighter-weight durable messaging layer built on top of NATS' core. Best for: sub-millisecond latency requirements, simpler operational model (single binary, no Zookeeper), edge/IoT deployments, services that need request-reply alongside pub/sub. Key differences: Kafka persists by default (immutable log), NATS JetStream has configurable retention. Kafka requires more operational infrastructure (brokers, Zookeeper/KRaft), while NATS is significantly easier to run but has lower max throughput. Choose Kafka for data-at-rest at scale, and choose NATS JetStream for low-latency, simpler deployments.
+
+**Q: Explain Event Sourcing and when it is (and isn't) a good choice.**
+
+A: Event Sourcing stores every state change as an immutable event rather than storing only the current state. Current state is derived by replaying events. Benefits: complete audit trail for free, ability to rewind to any past state, natural stream of events for reactive consumers, temporal queries ("what was the state at time T?"). When it is right: domain models with complex audit requirements (financial, healthcare), systems where historical analysis of state changes has business value, CQRS architectures where read and write models must diverge significantly. When it is wrong: simple CRUD systems where you only care about current state, teams without experience in event replay and snapshot management, systems where event history will grow unboundedly without snapshot support (replaying 10M events on startup is unusable). The operational cost of event sourcing - snapshot management, upcaster maintenance, read model projection rebuild - is significant and often underestimated.
+
+---

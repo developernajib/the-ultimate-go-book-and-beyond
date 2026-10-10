@@ -1,0 +1,37 @@
+BINARY    := mlplatform
+CMD       := ./cmd/mlplatform
+BUILD_DIR := ./bin
+
+.PHONY: all build run test lint fmt vet clean docker-up docker-down tidy
+
+all: build
+
+build:
+	go build -o $(BUILD_DIR)/$(BINARY) $(CMD)
+
+run:
+	go run $(CMD)/main.go
+
+test:
+	go test ./... -v -race -count=1
+
+lint:
+	golangci-lint run ./...
+
+fmt:
+	gofmt -w .
+
+vet:
+	go vet ./...
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
+
+tidy:
+	go mod tidy
